@@ -97,13 +97,13 @@ function Header() {
         transition={{ duration: 0.6, delay: 0.1 }}
         className={`top-0 inset-x-0 z-50 transition-all duration-500 ${
           scrolled
-            ? "fixed bg-[#0A0908] border-b border-white/[0.04]"
+            ? "fixed lg:bg-[#0A0908] lg:border-b lg:border-white/[0.04] bg-transparent"
             : "absolute bg-transparent"
         }`}
       >
         <div className="section-container flex items-center justify-between h-[68px]">
-          <a href="#" onClick={close} className="relative z-10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold">
-            <Image src="/images/logo.png" alt="Vida Rica" width={120} height={40} className="h-8 sm:h-9 w-auto" priority />
+          <a href="#" onClick={close} className="relative z-10 hidden lg:block focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold">
+            <Image src="/images/logo.png" alt="Vida Rica" width={120} height={40} className="h-9 w-auto" priority />
           </a>
           <nav className="hidden lg:flex items-center gap-8">
             {links.map((l) => (
@@ -115,7 +115,7 @@ function Header() {
               {CTA_TEXT}
             </a>
           </nav>
-          <button onClick={() => setMenuOpen(!menuOpen)} className="lg:hidden flex flex-col gap-[5px] p-2 cursor-pointer relative z-10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold" aria-label="Menu" style={{ filter: scrolled ? "none" : "drop-shadow(0 1px 2px rgba(0,0,0,0.6))" }}>
+          <button onClick={() => setMenuOpen(!menuOpen)} className="lg:hidden flex flex-col gap-[5px] min-w-[44px] min-h-[44px] items-center justify-center cursor-pointer relative z-10 ml-auto focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold" aria-label="Menu" style={{ filter: "drop-shadow(0 2px 8px rgba(0,0,0,0.6))" }}>
             <span className={`block w-5 h-[1.5px] bg-white transition-all duration-300 ${menuOpen ? "rotate-45 translate-y-[6.5px]" : ""}`} />
             <span className={`block w-5 h-[1.5px] bg-white transition-all duration-300 ${menuOpen ? "opacity-0" : ""}`} />
             <span className={`block w-5 h-[1.5px] bg-white transition-all duration-300 ${menuOpen ? "-rotate-45 -translate-y-[6.5px]" : ""}`} />
@@ -225,8 +225,9 @@ function Hero() {
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.9, ease: EASE }} className="flex flex-col gap-5">
             {/* Price — single baseline row */}
             <div>
+              <span className="inline-block text-[10px] font-bold tracking-[0.1em] uppercase text-emerald-400 bg-emerald-400/10 px-2.5 py-1 rounded-full border border-emerald-400/20 mb-2">-67% OFF</span>
               <div className="flex items-baseline gap-3">
-                <span className="text-text-muted text-sm line-through" style={{ opacity: 0.5 }}>R$ 297</span>
+                <span className="text-red-400 text-sm line-through" style={{ opacity: 0.7 }}>R$ 297</span>
                 <span className="font-display text-gold text-sm font-medium" style={{ lineHeight: 1 }}>R$</span>
                 <span className="font-display gold-text text-[2.25rem] font-bold" style={{ lineHeight: 1, marginLeft: "-6px" }}>97</span>
               </div>
@@ -276,8 +277,9 @@ function Hero() {
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 1.1, ease: EASE }} className="flex flex-col items-start gap-5">
                 {/* Price — single baseline row */}
                 <div>
+                  <span className="inline-block text-[10px] font-bold tracking-[0.1em] uppercase text-emerald-400 bg-emerald-400/10 px-2.5 py-1 rounded-full border border-emerald-400/20 mb-2">-67% OFF</span>
                   <div className="flex items-baseline gap-3">
-                    <span className="text-text-muted text-sm line-through" style={{ opacity: 0.5 }}>R$ 297</span>
+                    <span className="text-red-400 text-sm line-through" style={{ opacity: 0.7 }}>R$ 297</span>
                     <span className="font-display text-gold text-base font-medium" style={{ lineHeight: 1 }}>R$</span>
                     <span className="font-display gold-text text-[2.75rem] font-bold" style={{ lineHeight: 1, marginLeft: "-6px" }}>97</span>
                   </div>
