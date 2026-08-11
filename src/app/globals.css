@@ -122,7 +122,6 @@
     gap: 10px;
     padding: 18px 36px;
     background: linear-gradient(180deg, #E0C55C 0%, #C9A84C 50%, #B8942F 100%);
-    background-size: 100% 100%;
     color: #0d0b07;
     font-family: 'Inter', sans-serif;
     font-weight: 600;
@@ -130,26 +129,27 @@
     letter-spacing: 0.04em;
     text-decoration: none;
     border: none;
-    border-radius: 12px;
+    border-radius: 999px;
     border-top: 1px solid rgba(255, 255, 255, 0.25);
     cursor: pointer;
     transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     overflow: hidden;
-    box-shadow:
-      0 0 0 0 rgba(201, 168, 76, 0.3),
-      0 6px 28px rgba(201, 168, 76, 0.18),
-      0 10px 36px rgba(0, 0, 0, 0.3);
-    animation: ctaPulse 3s ease-in-out infinite;
+    box-shadow: 0 6px 28px rgba(201, 168, 76, 0.18), 0 10px 36px rgba(0, 0, 0, 0.3);
+    animation: ctaPulse 2.5s ease-in-out infinite;
   }
   @media (prefers-reduced-motion: reduce) {
-    .cta-primary { animation: none; }
+    .cta-primary { animation: none !important; }
+  }
+  @media (max-width: 639px) {
+    .cta-primary.hero-cta {
+      width: 100%;
+      height: 60px;
+      font-size: 1rem;
+    }
   }
   .cta-primary:hover {
-    transform: translateY(-2px);
-    box-shadow:
-      0 0 0 0 rgba(201, 168, 76, 0),
-      0 10px 44px rgba(201, 168, 76, 0.28),
-      0 14px 52px rgba(0, 0, 0, 0.3);
+    transform: translateY(-2px) scale(1.01);
+    box-shadow: 0 10px 44px rgba(201, 168, 76, 0.28), 0 14px 52px rgba(0, 0, 0, 0.3);
     animation: none;
     filter: brightness(1.08);
   }
@@ -166,8 +166,8 @@
   .cta-primary:hover::after { left: 120% }
 
   @keyframes ctaPulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(201, 168, 76, 0.2), 0 4px 24px rgba(201, 168, 76, 0.12), 0 8px 32px rgba(0, 0, 0, 0.3) }
-    50% { box-shadow: 0 0 0 14px rgba(201, 168, 76, 0), 0 4px 24px rgba(201, 168, 76, 0.12), 0 8px 32px rgba(0, 0, 0, 0.3) }
+    0%, 100% { box-shadow: 0 6px 28px rgba(201, 168, 76, 0.18), 0 10px 36px rgba(0, 0, 0, 0.3) }
+    50% { box-shadow: 0 6px 28px rgba(201, 168, 76, 0.35), 0 10px 36px rgba(0, 0, 0, 0.3), 0 0 0 8px rgba(201, 168, 76, 0.06) }
   }
 
   /* ═══════════════ CTA FULL WIDTH ═══════════════ */
@@ -292,12 +292,18 @@
     left: 0;
     right: 0;
     z-index: 45;
-    background: linear-gradient(to top, var(--color-bg-base) 60%, transparent);
-    padding: 16px 20px 20px;
+    background: rgba(10, 9, 8, 0.92);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    max-height: 68px;
+    border-top: 1px solid rgba(201, 168, 76, 0.12);
+    padding: 12px 20px calc(12px + env(safe-area-inset-bottom, 0px));
     transform: translateY(100%);
-    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    opacity: 0;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
   }
   .mobile-cta-bar.visible {
     transform: translateY(0);
+    opacity: 1;
   }
 }

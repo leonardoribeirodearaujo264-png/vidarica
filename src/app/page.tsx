@@ -71,7 +71,7 @@ function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
-    const h = () => setScrolled(window.scrollY > 50);
+    const h = () => setScrolled(window.scrollY > 100);
     window.addEventListener("scroll", h, { passive: true });
     return () => window.removeEventListener("scroll", h);
   }, []);
@@ -95,10 +95,10 @@ function Header() {
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.1 }}
-        className={`fixed top-0 inset-x-0 z-50 transition-all duration-500 ${
+        className={`top-0 inset-x-0 z-50 transition-all duration-500 ${
           scrolled
-            ? "bg-bg-base/90 backdrop-blur-xl border-b border-white/[0.04]"
-            : "bg-transparent"
+            ? "fixed bg-[#0A0908] border-b border-white/[0.04]"
+            : "absolute bg-transparent"
         }`}
       >
         <div className="section-container flex items-center justify-between h-[68px]">
@@ -115,7 +115,7 @@ function Header() {
               {CTA_TEXT}
             </a>
           </nav>
-          <button onClick={() => setMenuOpen(!menuOpen)} className="lg:hidden flex flex-col gap-[5px] p-2 cursor-pointer relative z-10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold" aria-label="Menu">
+          <button onClick={() => setMenuOpen(!menuOpen)} className="lg:hidden flex flex-col gap-[5px] p-2 cursor-pointer relative z-10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold" aria-label="Menu" style={{ filter: scrolled ? "none" : "drop-shadow(0 1px 2px rgba(0,0,0,0.6))" }}>
             <span className={`block w-5 h-[1.5px] bg-white transition-all duration-300 ${menuOpen ? "rotate-45 translate-y-[6.5px]" : ""}`} />
             <span className={`block w-5 h-[1.5px] bg-white transition-all duration-300 ${menuOpen ? "opacity-0" : ""}`} />
             <span className={`block w-5 h-[1.5px] bg-white transition-all duration-300 ${menuOpen ? "-rotate-45 -translate-y-[6.5px]" : ""}`} />
@@ -154,16 +154,32 @@ function MobileCta() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    const h = () => setVisible(window.scrollY > window.innerHeight * 0.9);
+    const h = () => {
+      const pastThreshold = window.scrollY > 600;
+      const offerSection = document.getElementById("oferta");
+      let offerVisible = false;
+      if (offerSection) {
+        const r = offerSection.getBoundingClientRect();
+        offerVisible = r.top < window.innerHeight && r.bottom > 0;
+      }
+      setVisible(pastThreshold && !offerVisible);
+    };
     window.addEventListener("scroll", h, { passive: true });
+    h();
     return () => window.removeEventListener("scroll", h);
   }, []);
 
   return (
     <div className={`mobile-cta-bar lg:hidden ${visible ? "visible" : ""}`}>
-      <a href={KIWIFY} target="_blank" rel="noopener noreferrer" className="cta-full text-sm !py-4">
-        {CTA_TEXT} &middot; <span className="line-through opacity-60 text-xs">R$ 297</span> R$ 97 <Arrow />
-      </a>
+      <div className="flex items-center justify-between gap-3">
+        <div className="shrink-0">
+          <p className="text-text-primary text-sm font-display font-bold">R$ 97</p>
+          <p className="text-text-muted text-[10px]">Pagamento único</p>
+        </div>
+        <a href={KIWIFY} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 bg-gradient-to-b from-[#E0C55C] via-[#C9A84C] to-[#B8942F] text-[#0d0b07] font-semibold text-sm px-6 py-3 rounded-full border-t border-white/25 whitespace-nowrap">
+          Começar agora <Arrow />
+        </a>
+      </div>
     </div>
   );
 }
@@ -177,89 +193,133 @@ function Hero() {
   const imgY = useTransform(scrollYProgress, [0, 1], [0, 40]);
 
   return (
-    <section ref={ref} className="relative min-h-screen flex items-center overflow-hidden">
-      {/* Ambient glows */}
-      <div className="glow-gold" style={{ top: "-15%", right: "-5%" }} />
-      <div className="absolute bottom-[-10%] left-[10%] w-[400px] h-[400px] bg-gold-glow rounded-full blur-[160px] pointer-events-none" />
+    <section ref={ref} className="relative overflow-hidden">
+      {/* ── MOBILE LAYOUT ── */}
+      <div className="lg:hidden">
+        {/* Full-bleed photo — starts at y=0, behind header */}
+        <div className="relative w-full" style={{ height: "60vh" }}>
+          <Image
+            src="/images/hero-photo.jpeg"
+            alt="Deyllane Lacerda"
+            fill
+            className="object-cover"
+            style={{ objectPosition: "center 20%" }}
+            priority
+          />
+          {/* Dissolve — bottom to top, using exact bg color */}
+          <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-[#0A0908] from-0% via-[#0A0908]/85 via-[35%] to-transparent to-[65%]" />
+        </div>
 
-      <div className="relative z-10 section-container w-full pt-28 sm:pt-32 pb-12 sm:pb-16">
-        <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
-          <div className="order-2 lg:order-1 max-w-[520px]">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8, delay: 0.3 }} className="inline-flex items-center gap-2 bg-white/[0.04] border border-white/[0.06] rounded-full px-4 py-1.5 mb-7">
-              <span className="w-1.5 h-1.5 rounded-full bg-gold animate-pulse" />
-              <span className="text-[11px] text-text-muted tracking-wide">Treinamento 100% online &middot; Acesso imediato</span>
-            </motion.div>
+        {/* Text content — overlaps the dissolved photo */}
+        <div className="relative z-10 px-6 -mt-32">
+          <motion.h1 initial={{ opacity: 0, y: 25 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1, delay: 0.3, ease: EASE }} className="heading-hero mb-5">
+            Por que você ganha dinheiro e{" "}
+            <span className="gold-text">ainda se sente preso?</span>
+          </motion.h1>
 
-            <motion.h1 initial={{ opacity: 0, y: 25 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1, delay: 0.5, ease: EASE }} className="heading-hero mb-6">
-              Por que você ganha dinheiro e{" "}
-              <span className="gold-text">ainda se sente preso?</span>
-            </motion.h1>
+          <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.6, ease: EASE }} className="text-text-secondary text-[15px] leading-relaxed mb-7">
+            Seus padrões emocionais controlam cada decisão financeira. Aprenda a{" "}
+            <strong className="text-text-primary font-medium">pensar, decidir e agir diferente</strong> com o dinheiro.
+          </motion.p>
 
-            <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.8, ease: EASE }} className="text-text-secondary text-[15px] sm:text-base leading-relaxed mb-8 max-w-[480px]">
-              Seus padrões emocionais controlam cada decisão financeira. Aprenda a{" "}
-              <strong className="text-text-primary font-medium">pensar, decidir e agir diferente</strong> com o dinheiro.
-            </motion.p>
-
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 1.1, ease: EASE }} className="flex flex-col items-start gap-5">
-              {/* Price — single line */}
-              <div>
-                <div className="flex items-baseline gap-2.5 mb-3">
-                  <span className="text-text-muted text-sm line-through opacity-50 self-center">R$ 297</span>
-                  <span className="text-[9px] font-bold tracking-[0.12em] uppercase bg-gold/12 text-gold px-2 py-0.5 rounded-full border border-gold/20 self-center">-67%</span>
-                  <span className="font-display text-gold text-sm mr-0.5 font-medium" style={{ lineHeight: 1, verticalAlign: "top" }}>R$</span>
-                  <span className="font-display gold-text text-4xl sm:text-[2.75rem] font-bold" style={{ lineHeight: 1 }}>97</span>
-                </div>
-                <p className="text-text-muted text-[11px]">
-                  Pagamento único &middot; Acesso por 1 ano
-                </p>
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.9, ease: EASE }} className="flex flex-col gap-5">
+            {/* Price — single baseline row */}
+            <div>
+              <div className="flex items-baseline gap-3">
+                <span className="text-text-muted text-sm line-through" style={{ opacity: 0.5 }}>R$ 297</span>
+                <span className="font-display text-gold text-sm font-medium" style={{ lineHeight: 1 }}>R$</span>
+                <span className="font-display gold-text text-[2.25rem] font-bold" style={{ lineHeight: 1, marginLeft: "-6px" }}>97</span>
               </div>
-
-              <a href={KIWIFY} target="_blank" rel="noopener noreferrer" className="cta-primary text-[15px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold">
-                {CTA_TEXT} <Arrow />
-              </a>
-            </motion.div>
-
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8, delay: 1.5 }} className="flex flex-wrap items-center justify-center sm:justify-start gap-x-3 gap-y-1.5 mt-6 text-text-muted text-[10px]" style={{ opacity: 0.65 }}>
-              <span className="flex items-center gap-1">
-                <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
-                Compra segura
-              </span>
-              <span className="text-white/10">|</span>
-              <span className="flex items-center gap-1">
-                <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
-                7 dias de garantia
-              </span>
-              <span className="text-white/10">|</span>
-              <span className="flex items-center gap-1">
-                <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-                Acesso imediato
-              </span>
-            </motion.div>
-          </div>
-
-          <motion.div className="order-1 lg:order-2 flex justify-center lg:justify-end" initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1.2, delay: 0.3, ease: EASE }} style={{ y: imgY }}>
-            <div className="relative w-[260px] sm:w-[300px] lg:w-[360px] max-w-[300px] lg:max-w-none mx-auto lg:mx-0" style={{ aspectRatio: "3/4" }}>
-              {/* Subtle radial halo */}
-              <div className="absolute -inset-12 rounded-full pointer-events-none" style={{ background: "radial-gradient(circle, rgba(201,168,76,0.06) 0%, transparent 65%)", filter: "blur(24px)" }} />
-              {/* Single bordered image */}
-              <div className="relative overflow-hidden rounded-2xl h-full" style={{ border: "1px solid rgba(201,168,76,0.25)" }}>
-                <Image src="/images/hero-photo.jpeg" alt="Deyllane Lacerda — Mentora de Finanças Comportamentais" width={400} height={530} className="w-full h-full object-cover" priority />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
-                <div className="absolute bottom-0 inset-x-0 p-5 sm:p-6">
-                  <p className="font-display text-text-primary text-lg sm:text-xl font-semibold">Deyllane Lacerda</p>
-                  <p className="text-gold text-[10px] tracking-[0.2em] uppercase mt-1">Economista &middot; Finanças Comportamentais</p>
-                </div>
-              </div>
-              {/* Soft shadow underneath */}
-              <div className="absolute -bottom-4 inset-x-6 h-8 bg-black/25 rounded-[50%] blur-xl pointer-events-none" />
+              <p className="text-text-muted text-[11px] mt-2">Pagamento único</p>
             </div>
+
+            <a id="hero-cta" href={KIWIFY} target="_blank" rel="noopener noreferrer" className="cta-primary hero-cta text-[15px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold">
+              {CTA_TEXT} <Arrow />
+            </a>
           </motion.div>
+
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8, delay: 1.3 }} className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1.5 mt-6 text-text-muted text-[10px]" style={{ opacity: 0.65 }}>
+            <span className="flex items-center gap-1">
+              <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+              Compra segura
+            </span>
+            <span className="text-white/10">|</span>
+            <span className="flex items-center gap-1">
+              <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+              7 dias de garantia
+            </span>
+          </motion.div>
+
+          <div className="pb-10" />
         </div>
       </div>
 
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 2, duration: 1 }} className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 hidden sm:flex flex-col items-center">
-        <motion.div animate={{ y: [0, 6, 0] }} transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }} className="w-[1px] h-6 bg-gradient-to-b from-gold/30 to-transparent" />
-      </motion.div>
+      {/* ── DESKTOP LAYOUT ── */}
+      <div className="hidden lg:flex items-center min-h-screen">
+        {/* Ambient glows */}
+        <div className="glow-gold" style={{ top: "-15%", right: "-5%" }} />
+        <div className="absolute bottom-[-10%] left-[10%] w-[400px] h-[400px] bg-gold-glow rounded-full blur-[160px] pointer-events-none" />
+
+        <div className="relative z-10 section-container w-full pt-28 pb-16">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            <div className="max-w-[520px]">
+              <motion.h1 initial={{ opacity: 0, y: 25 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1, delay: 0.5, ease: EASE }} className="heading-hero mb-6">
+                Por que você ganha dinheiro e{" "}
+                <span className="gold-text">ainda se sente preso?</span>
+              </motion.h1>
+
+              <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.8, ease: EASE }} className="text-text-secondary text-base leading-relaxed mb-8 max-w-[480px]">
+                Seus padrões emocionais controlam cada decisão financeira. Aprenda a{" "}
+                <strong className="text-text-primary font-medium">pensar, decidir e agir diferente</strong> com o dinheiro.
+              </motion.p>
+
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 1.1, ease: EASE }} className="flex flex-col items-start gap-5">
+                {/* Price — single baseline row */}
+                <div>
+                  <div className="flex items-baseline gap-3">
+                    <span className="text-text-muted text-sm line-through" style={{ opacity: 0.5 }}>R$ 297</span>
+                    <span className="font-display text-gold text-base font-medium" style={{ lineHeight: 1 }}>R$</span>
+                    <span className="font-display gold-text text-[2.75rem] font-bold" style={{ lineHeight: 1, marginLeft: "-6px" }}>97</span>
+                  </div>
+                  <p className="text-text-muted text-[11px] mt-2">Pagamento único</p>
+                </div>
+
+                <a id="hero-cta" href={KIWIFY} target="_blank" rel="noopener noreferrer" className="cta-primary text-[15px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold">
+                  {CTA_TEXT} <Arrow />
+                </a>
+              </motion.div>
+
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8, delay: 1.5 }} className="flex flex-wrap items-center gap-x-3 gap-y-1.5 mt-6 text-text-muted text-[10px]" style={{ opacity: 0.65 }}>
+                <span className="flex items-center gap-1">
+                  <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                  Compra segura
+                </span>
+                <span className="text-white/10">|</span>
+                <span className="flex items-center gap-1">
+                  <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+                  7 dias de garantia
+                </span>
+              </motion.div>
+            </div>
+
+            <motion.div className="flex justify-end" initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1.2, delay: 0.3, ease: EASE }} style={{ y: imgY }}>
+              <div className="relative w-[400px]">
+                <Image src="/images/hero-photo.jpeg" alt="Deyllane Lacerda" width={400} height={530} className="w-full h-auto object-cover" priority />
+                {/* Bottom dissolve */}
+                <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#0A0908] via-[#0A0908]/70 to-transparent pointer-events-none" />
+                {/* Left dissolve */}
+                <div className="absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-[#0A0908] via-[#0A0908]/50 to-transparent pointer-events-none" />
+                {/* Top dissolve */}
+                <div className="absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-[#0A0908] to-transparent pointer-events-none" />
+              </div>
+            </motion.div>
+          </div>
+        </div>
+
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 2, duration: 1 }} className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center">
+          <motion.div animate={{ y: [0, 6, 0] }} transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }} className="w-[1px] h-6 bg-gradient-to-b from-gold/30 to-transparent" />
+        </motion.div>
+      </div>
     </section>
   );
 }
