@@ -172,12 +172,15 @@ function MobileCta() {
   return (
     <div className={`mobile-cta-bar lg:hidden ${visible ? "visible" : ""}`}>
       <div className="flex items-center justify-between gap-3">
-        <div className="shrink-0">
-          <p className="text-text-primary text-sm font-display font-bold">R$ 97</p>
-          <p className="text-text-muted text-[10px]">Pagamento único</p>
+        <div className="shrink-0 whitespace-nowrap">
+          <p className="text-gold text-xs font-semibold">67% OFF</p>
+          <p className="text-[12px]">
+            <span className="text-text-muted/45 line-through text-[11px]">R$ 297</span>{" "}
+            <span className="text-text-primary font-semibold">R$ 97</span>
+          </p>
         </div>
-        <a href={KIWIFY} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 bg-gradient-to-b from-[#E0C55C] via-[#C9A84C] to-[#B8942F] text-[#0d0b07] font-semibold text-sm px-6 py-3 rounded-full border-t border-white/25 whitespace-nowrap">
-          Começar agora <Arrow />
+        <a href={KIWIFY} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 bg-gradient-to-b from-[#E0C55C] via-[#C9A84C] to-[#B8942F] text-[#0d0b07] font-semibold text-sm min-w-[150px] h-12 px-5 rounded-full border-t border-white/25 whitespace-nowrap shrink-0">
+          Comprar agora <Arrow />
         </a>
       </div>
     </div>
@@ -1180,7 +1183,7 @@ function Footer() {
    ════════════════════════════════════════════ */
 export default function Home() {
   return (
-    <main className="bg-bg-base">
+    <main className="bg-bg-base pb-20 lg:pb-0">
       <Header />
       <Hero />
       <PainSection />
