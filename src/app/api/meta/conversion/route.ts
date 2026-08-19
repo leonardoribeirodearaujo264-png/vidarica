@@ -66,10 +66,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: false, error: "json invalido" }, { status: 400 });
   }
 
-  // Purchase is handled by Kiwify to avoid duplicate purchases.
-  if (payload.event_name === "Purchase") {
+  // Purchase and InitiateCheckout are handled by Kiwify to avoid duplicate events.
+  if (payload.event_name === "Purchase" || payload.event_name === "InitiateCheckout") {
     return NextResponse.json(
-      { ok: false, error: "Purchase is handled by Kiwify" },
+      { ok: false, error: `${payload.event_name} is handled by Kiwify` },
       { status: 409 },
     );
   }

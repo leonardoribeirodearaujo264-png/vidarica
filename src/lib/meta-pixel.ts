@@ -184,15 +184,12 @@ export function trackViewContent(): void {
   track("ViewContent", { ...PRODUCT });
 }
 
-/** Clique num botao que leva ao checkout da Kiwify.
- *  `ctaLocation` identifica qual botao converteu. */
-export function trackInitiateCheckout(ctaLocation: string): void {
-  track("InitiateCheckout", { ...PRODUCT, cta_location: ctaLocation });
-}
-
 /** Clique nos canais de contato (WhatsApp, Instagram, e-mail). */
 export function trackContact(channel: string): void {
   track("Contact", { channel });
 }
 
 // Purchase is handled by Kiwify to avoid duplicate purchases.
+// InitiateCheckout is handled by Kiwify to avoid duplicate events: o checkout
+// dela dispara o evento ao carregar a pagina, e nao ha como compartilhar
+// event_id entre os dois sites.

@@ -10,7 +10,7 @@ navegador bloqueia o Pixel.
 | Arquivo | Papel |
 | --- | --- |
 | `src/lib/meta-events.ts` | Configuração compartilhada: Pixel ID, lista de eventos permitidos, dados do produto, `generateEventId()`. Chega ao navegador — **sem segredos**. |
-| `src/lib/meta-pixel.ts` | Lado navegador: snippet do Pixel, `getFacebookCookies()`, `trackPageView()`, `trackViewContent()`, `trackInitiateCheckout()`, `trackContact()`. |
+| `src/lib/meta-pixel.ts` | Lado navegador: snippet do Pixel, `getFacebookCookies()`, `trackPageView()`, `trackViewContent()`, `trackContact()`. |
 | `src/lib/meta-capi.ts` | Lado servidor: normalização + SHA-256, montagem do payload e `sendMetaServerEvent()`. Lê o token. **Nunca importar de componente client.** |
 | `src/lib/consent.ts` | Porta de consentimento. Hoje libera por padrão (o site não tem banner de cookies). |
 | `src/components/MetaPixel.tsx` | Único ponto de instalação do Pixel, montado no layout raiz. |
@@ -22,17 +22,19 @@ navegador bloqueia o Pixel.
 | --- | --- | --- |
 | `PageView` | Uma vez por carregamento | — |
 | `ViewContent` | Ao rolar até a seção `#oferta` (uma vez por visita) | `content_type`, `content_ids`, `currency`, `value` |
-| `InitiateCheckout` | **Só no clique** num botão que leva à Kiwify | idem + `cta_location` |
 | `Contact` | Clique em WhatsApp, Instagram ou e-mail | `channel` |
 
-### Purchase
+### InitiateCheckout e Purchase — só a Kiwify
 
-**Purchase is handled by Kiwify to avoid duplicate purchases.**
+**Purchase and InitiateCheckout are handled by Kiwify to avoid duplicate events.**
 
-A compra acontece no checkout da Kiwify, que já dispara o Pixel com o mesmo ID.
-Não existe forma de compartilhar `event_id` entre este site e a Kiwify, então um
-`Purchase` daqui seria contado duas vezes. A rota `/api/meta/conversion` recusa
-`Purchase` explicitamente com HTTP 409.
+O checkout da Kiwify já dispara os dois com o mesmo Pixel ID: `InitiateCheckout`
+ao carregar a página de pagamento e `Purchase` na aprovação. Não existe forma de
+compartilhar `event_id` entre este site e a Kiwify, então disparar qualquer um
+deles aqui seria contagem em dobro — a Meta não teria como deduplicar.
+
+A rota `/api/meta/conversion` recusa os dois explicitamente com HTTP 409, e
+nenhum botão da página dispara evento de checkout.
 
 ## Dados de correspondência
 
@@ -68,8 +70,8 @@ Ver `.env.example`. Cadastrar na Vercel em **Settings → Environment Variables*
 2. Coloque em `META_TEST_EVENT_CODE` (Vercel ou `.env.local`) e faça o deploy.
    Enquanto ele estiver preenchido, os eventos da CAPI aparecem na aba de teste e
    **não entram nos dados reais**.
-3. Abra o site, role até a oferta e clique num botão de compra. Devem aparecer
-   `PageView`, `ViewContent` e `InitiateCheckout`.
+3. Abra o site e role até a oferta. Devem aparecer `PageView` e `ViewContent`
+   (o `InitiateCheckout` aparece só depois, já dentro da Kiwify).
 4. Cada um deve mostrar origem **Navegador + Servidor** com a marca de
    *deduplicado*. Se aparecerem separados, o `event_id` não está batendo.
 5. **Apague `META_TEST_EVENT_CODE` ao terminar** — senão os eventos reais nunca

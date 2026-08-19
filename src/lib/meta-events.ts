@@ -12,12 +12,12 @@ export const PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID ?? "16759570734777
 /**
  * Eventos que ESTE site pode enviar.
  *
- * Purchase is handled by Kiwify to avoid duplicate purchases.
- * A compra acontece no checkout da Kiwify, que ja dispara o Pixel com o
- * mesmo ID. Nao ha como compartilhar event_id com a Kiwify, entao um
- * Purchase disparado aqui seria contado em dobro.
+ * Purchase and InitiateCheckout are handled by Kiwify to avoid duplicate events.
+ * O checkout da Kiwify ja dispara os dois com o mesmo Pixel ID. Nao existe
+ * forma de compartilhar event_id com a Kiwify, entao disparar qualquer um
+ * deles aqui seria contagem em dobro — a Meta nao teria como deduplicar.
  */
-export const META_EVENTS = ["PageView", "ViewContent", "InitiateCheckout", "Contact"] as const;
+export const META_EVENTS = ["PageView", "ViewContent", "Contact"] as const;
 
 export type MetaEventName = (typeof META_EVENTS)[number];
 
