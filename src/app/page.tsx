@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { motion, useScroll, useTransform, useInView, AnimatePresence } from "framer-motion";
-import { trackCheckout, trackContact, trackViewContent } from "@/lib/pixel";
+import { trackContact, trackInitiateCheckout, trackViewContent } from "@/lib/meta-pixel";
 
 /* ═══════════════ FEATURE FLAGS ═══════════════ */
 const MOSTRAR_DEPOIMENTOS = false;
@@ -112,7 +112,7 @@ function Header() {
                 {l.label}
               </a>
             ))}
-            <a href={KIWIFY} onClick={() => trackCheckout("header")} target="_blank" rel="noopener noreferrer" className="ml-4 text-[13px] font-semibold text-bg-base bg-gradient-to-r from-gold to-[#E8D48B] px-6 py-2.5 rounded-lg hover:shadow-lg hover:shadow-gold/20 transition-all duration-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold">
+            <a href={KIWIFY} onClick={() => trackInitiateCheckout("header")} target="_blank" rel="noopener noreferrer" className="ml-4 text-[13px] font-semibold text-bg-base bg-gradient-to-r from-gold to-[#E8D48B] px-6 py-2.5 rounded-lg hover:shadow-lg hover:shadow-gold/20 transition-all duration-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold">
               {CTA_TEXT}
             </a>
           </nav>
@@ -138,7 +138,7 @@ function Header() {
                 {l.label}
               </motion.a>
             ))}
-            <motion.a href={KIWIFY} target="_blank" rel="noopener noreferrer" onClick={() => { close(); trackCheckout("menu_mobile"); }} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5, duration: 0.4 }} className="cta-primary mt-4">
+            <motion.a href={KIWIFY} target="_blank" rel="noopener noreferrer" onClick={() => { close(); trackInitiateCheckout("menu_mobile"); }} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5, duration: 0.4 }} className="cta-primary mt-4">
               {CTA_TEXT}
             </motion.a>
           </motion.div>
@@ -180,7 +180,7 @@ function MobileCta() {
             <span className="text-text-primary font-semibold">R$ 97</span>
           </p>
         </div>
-        <a href={KIWIFY} onClick={() => trackCheckout("barra_mobile")} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 bg-gradient-to-b from-[#E0C55C] via-[#C9A84C] to-[#B8942F] text-[#0d0b07] font-semibold text-sm min-w-[150px] h-12 px-5 rounded-full border-t border-white/25 whitespace-nowrap shrink-0">
+        <a href={KIWIFY} onClick={() => trackInitiateCheckout("barra_mobile")} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 bg-gradient-to-b from-[#E0C55C] via-[#C9A84C] to-[#B8942F] text-[#0d0b07] font-semibold text-sm min-w-[150px] h-12 px-5 rounded-full border-t border-white/25 whitespace-nowrap shrink-0">
           Comprar agora <Arrow />
         </a>
       </div>
@@ -238,7 +238,7 @@ function Hero() {
               <p className="text-text-muted text-[11px] mt-2">Pagamento único</p>
             </div>
 
-            <a id="hero-cta" href={KIWIFY} onClick={() => trackCheckout("hero_mobile")} target="_blank" rel="noopener noreferrer" className="cta-primary hero-cta text-[15px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold">
+            <a id="hero-cta" href={KIWIFY} onClick={() => trackInitiateCheckout("hero_mobile")} target="_blank" rel="noopener noreferrer" className="cta-primary hero-cta text-[15px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold">
               {CTA_TEXT} <Arrow />
             </a>
           </motion.div>
@@ -290,7 +290,7 @@ function Hero() {
                   <p className="text-text-muted text-[11px] mt-2">Pagamento único</p>
                 </div>
 
-                <a id="hero-cta" href={KIWIFY} onClick={() => trackCheckout("hero_desktop")} target="_blank" rel="noopener noreferrer" className="cta-primary text-[15px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold">
+                <a id="hero-cta" href={KIWIFY} onClick={() => trackInitiateCheckout("hero_desktop")} target="_blank" rel="noopener noreferrer" className="cta-primary text-[15px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold">
                   {CTA_TEXT} <Arrow />
                 </a>
               </motion.div>
@@ -828,7 +828,7 @@ function OfferSection() {
               <span>Boleto</span>
             </div>
 
-            <a href={KIWIFY} onClick={() => trackCheckout("oferta")} target="_blank" rel="noopener noreferrer" className="cta-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold">
+            <a href={KIWIFY} onClick={() => trackInitiateCheckout("oferta")} target="_blank" rel="noopener noreferrer" className="cta-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold">
               QUERO COMEÇAR AGORA <Arrow />
             </a>
 
@@ -1073,7 +1073,7 @@ function FaqSection() {
 
         <R d={0.3}>
           <div className="text-center mt-10 space-y-5">
-            <a href={KIWIFY} onClick={() => trackCheckout("faq")} target="_blank" rel="noopener noreferrer" className="cta-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold">
+            <a href={KIWIFY} onClick={() => trackInitiateCheckout("faq")} target="_blank" rel="noopener noreferrer" className="cta-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold">
               {CTA_TEXT} <Arrow />
             </a>
             <div>
@@ -1140,7 +1140,7 @@ function BifurcationSection() {
 
         <R d={0.24}>
           <div className="text-center">
-            <a href={KIWIFY} onClick={() => trackCheckout("bifurcacao_final")} target="_blank" rel="noopener noreferrer" className="cta-primary text-[15px] px-10 py-5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold">
+            <a href={KIWIFY} onClick={() => trackInitiateCheckout("bifurcacao_final")} target="_blank" rel="noopener noreferrer" className="cta-primary text-[15px] px-10 py-5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold">
               QUERO COMEÇAR AGORA <Arrow />
             </a>
             <p className="text-text-muted text-xs mt-5">
