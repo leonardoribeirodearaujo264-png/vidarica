@@ -327,7 +327,7 @@ function Hero() {
                 <span className="font-display text-gold text-xl font-semibold leading-none">R$</span>
                 <span className="display gilt text-[3rem] leading-none">{PRECO}</span>
               </div>
-              <p className="meta mt-2.5">Pagamento único · 1 ano de acesso</p>
+              <p className="meta mt-2.5">Investimento único · Um ano de acesso</p>
             </div>
 
             <a href={KIWIFY} target="_blank" rel="noopener noreferrer" className="cta">
@@ -336,7 +336,7 @@ function Hero() {
           </div>
 
           <p className="meta mt-7 rise" style={{ animationDelay: "480ms" }}>
-            Garantia de 7 dias · Pix ou cartão
+            Garantia de 7 dias · Acesso imediato
           </p>
         </div>
 
@@ -777,7 +777,6 @@ const INCLUSO = [
   "E-books de negociação online, leitura corporal e confiança instantânea",
   "E-books autorais de mentalidade financeira",
   "Acesso por 1 ano, de qualquer dispositivo",
-  "Garantia legal de 7 dias (art. 49 do CDC)",
 ];
 
 function Offer() {
@@ -838,23 +837,19 @@ function Offer() {
                 <span className="font-display text-gold text-2xl font-semibold leading-none">R$</span>
                 <span className="display gilt text-[4rem] leading-none -ml-1">{PRECO}</span>
               </div>
-              <p className="meta mt-3">Pagamento único · Acesso por 1 ano</p>
-
-              <div className="flex justify-center gap-8 mt-7 meta">
-                <span>Pix</span>
-                <span>Cartão</span>
-              </div>
+              <p className="meta mt-3">Investimento único · Um ano de acesso ilimitado</p>
 
               <a
                 href={KIWIFY}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="cta cta-wide mt-8"
+                className="cta cta-wide mt-9"
               >
                 {CTA_LABEL} <Arrow />
               </a>
 
-              <p className="meta mt-6">Compra segura na Kiwify · Acesso imediato</p>
+              <p className="meta mt-6">Compra segura · Acesso imediato</p>
+              <p className="meta mt-2 text-gold">Garantia de 7 dias (art. 49 do CDC)</p>
             </div>
           </div>
         </Reveal>
@@ -865,10 +860,10 @@ function Offer() {
               <Shield />
             </div>
             <div>
-              <p className="display-sm gilt">Garantia de 7 dias</p>
+              <p className="display-sm gilt">O risco é meu</p>
               <p className="mt-2.5 text-[0.95rem] leading-relaxed text-ink-soft">
                 Entre, assista, aplique. Se concluir que não é para você, peça o reembolso em até
-                7 dias e recebe o valor integral de volta. O risco é meu.
+                7 dias e recebe o valor integral de volta — sem precisar justificar.
               </p>
             </div>
           </div>
