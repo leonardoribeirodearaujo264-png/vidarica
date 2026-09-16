@@ -57,12 +57,7 @@
   }
 
   body {
-    /* Luz entrando pelo alto e um rastro de petróleo atravessando o meio */
-    background:
-      radial-gradient(90rem 50rem at 50% -14rem, rgba(26, 107, 125, 0.2), transparent 62%),
-      radial-gradient(70rem 44rem at 88% 44%, rgba(13, 57, 70, 0.3), transparent 66%),
-      linear-gradient(180deg, #0a1c3c 0%, #050f22 32%, #050f22 100%);
-    background-attachment: fixed;
+    background: var(--color-abyss);
     color: var(--color-ink-soft);
     font-family: var(--font-body);
     font-weight: 400;
@@ -70,6 +65,21 @@
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Luz entrando pelo alto e um rastro de petróleo atravessando o meio.
+     Camada fixa própria — `background-attachment: fixed` no body não
+     funciona em navegador de celular. */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(90rem 50rem at 50% -14rem, rgba(26, 107, 125, 0.24), transparent 62%),
+      radial-gradient(70rem 44rem at 88% 44%, rgba(13, 57, 70, 0.34), transparent 66%),
+      linear-gradient(180deg, #0a1c3c 0%, #050f22 42%, #050f22 100%);
   }
 
   /* Grão finíssimo: tira o aspecto de degradê digital */

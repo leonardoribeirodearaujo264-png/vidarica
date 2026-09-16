@@ -145,14 +145,6 @@ function Tick({ tone = "gold" }: { tone?: "gold" | "petrol" }) {
   );
 }
 
-function Cross() {
-  return (
-    <svg className="w-[18px] h-[18px] shrink-0 mt-[3px] text-ink-faint" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" />
-    </svg>
-  );
-}
-
 function InstagramGlyph() {
   return (
     <svg className="w-[17px] h-[17px] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden>
@@ -204,37 +196,70 @@ function malha(nos: Ponto[]): [Ponto, Ponto][] {
 const MALHA_ESQ = malha(NOS_ESQ);
 const MALHA_DIR = malha(NOS_DIR);
 
+/** A malha em si — desenhada uma vez e reaproveitada nas duas orientações. */
+function Malha() {
+  return (
+    <>
+      <g className="drift-a" stroke="url(#nf-gold)" fill="#d8bd88" strokeWidth="0.7">
+        {MALHA_ESQ.map(([a, b], i) => (
+          <line key={`le-${i}`} x1={a[0]} y1={a[1]} x2={b[0]} y2={b[1]} opacity="0.5" />
+        ))}
+        {NOS_ESQ.map(([x, y], i) => (
+          <circle key={`ne-${i}`} cx={x} cy={y} r={i % 3 === 0 ? 2.6 : 1.7} stroke="none" opacity="0.55" />
+        ))}
+      </g>
+
+      <g className="drift-b" stroke="url(#nf-petrol)" fill="#5cb0c2" strokeWidth="0.7">
+        {MALHA_DIR.map(([a, b], i) => (
+          <line key={`ld-${i}`} x1={a[0]} y1={a[1]} x2={b[0]} y2={b[1]} opacity="0.5" />
+        ))}
+        {NOS_DIR.map(([x, y], i) => (
+          <circle key={`nd-${i}`} cx={x} cy={y} r={i % 3 === 0 ? 2.6 : 1.7} stroke="none" opacity="0.55" />
+        ))}
+      </g>
+    </>
+  );
+}
+
+function CamposDeGradiente() {
+  return (
+    <defs>
+      <linearGradient id="nf-gold" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stopColor="#d8bd88" stopOpacity="0.5" />
+        <stop offset="100%" stopColor="#d8bd88" stopOpacity="0.08" />
+      </linearGradient>
+      <linearGradient id="nf-petrol" x1="1" y1="0" x2="0" y2="1">
+        <stop offset="0%" stopColor="#5cb0c2" stopOpacity="0.5" />
+        <stop offset="100%" stopColor="#5cb0c2" stopOpacity="0.08" />
+      </linearGradient>
+    </defs>
+  );
+}
+
 function NeuralField() {
   return (
     <div className="neural-field" aria-hidden>
-      <svg viewBox="0 0 1200 860" preserveAspectRatio="xMidYMid slice" className="w-full h-full">
-        <defs>
-          <linearGradient id="nf-gold" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#d8bd88" stopOpacity="0.5" />
-            <stop offset="100%" stopColor="#d8bd88" stopOpacity="0.08" />
-          </linearGradient>
-          <linearGradient id="nf-petrol" x1="1" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#5cb0c2" stopOpacity="0.5" />
-            <stop offset="100%" stopColor="#5cb0c2" stopOpacity="0.08" />
-          </linearGradient>
-        </defs>
+      {/* Tela larga: a malha no sentido original, ouro à esquerda. */}
+      <svg
+        viewBox="0 0 1200 860"
+        preserveAspectRatio="xMidYMid slice"
+        className="hidden sm:block w-full h-full"
+      >
+        <CamposDeGradiente />
+        <Malha />
+      </svg>
 
-        <g className="drift-a" stroke="url(#nf-gold)" fill="#d8bd88" strokeWidth="0.7">
-          {MALHA_ESQ.map(([a, b], i) => (
-            <line key={`le-${i}`} x1={a[0]} y1={a[1]} x2={b[0]} y2={b[1]} opacity="0.5" />
-          ))}
-          {NOS_ESQ.map(([x, y], i) => (
-            <circle key={`ne-${i}`} cx={x} cy={y} r={i % 3 === 0 ? 2.6 : 1.7} stroke="none" opacity="0.55" />
-          ))}
-        </g>
-
-        <g className="drift-b" stroke="url(#nf-petrol)" fill="#5cb0c2" strokeWidth="0.7">
-          {MALHA_DIR.map(([a, b], i) => (
-            <line key={`ld-${i}`} x1={a[0]} y1={a[1]} x2={b[0]} y2={b[1]} opacity="0.5" />
-          ))}
-          {NOS_DIR.map(([x, y], i) => (
-            <circle key={`nd-${i}`} cx={x} cy={y} r={i % 3 === 0 ? 2.6 : 1.7} stroke="none" opacity="0.55" />
-          ))}
+      {/* Tela estreita: a mesma malha girada 90°, senão o recorte cairia
+          bem no vão vazio entre os dois grupos. Em retrato o ouro fica
+          em cima e o petróleo embaixo — a mesma divisão, de pé. */}
+      <svg
+        viewBox="0 0 860 1200"
+        preserveAspectRatio="xMidYMid slice"
+        className="sm:hidden w-full h-full"
+      >
+        <CamposDeGradiente />
+        <g transform="translate(860,0) rotate(90)">
+          <Malha />
         </g>
       </svg>
     </div>
@@ -513,6 +538,34 @@ function Header() {
 
 /* ═══════════════ TOPO ═══════════════ */
 
+/* Em telas estreitas o selo quebra em duas linhas; a divisão fica aqui. */
+const SELOS: [string, string][] = [
+  ["12 meses", "de acesso"],
+  ["7 dias", "de garantia"],
+  ["Acesso", "imediato"],
+];
+
+/** Preço com os centavos menores, como em vitrine. O `em` do sufixo é
+ *  relativo ao tamanho do número, então acompanha qualquer escala. */
+function Preco({ tamanho }: { tamanho: string }) {
+  return (
+    <span className={`display gilt inline-flex items-start leading-none ${tamanho}`}>
+      {PRECO}
+      <span className="text-[0.38em] leading-none mt-[0.3em] ml-[0.04em]">,00</span>
+    </span>
+  );
+}
+
+/** Valor cheio riscado, com os centavos um pouco menores. */
+function PrecoCheio({ className = "" }: { className?: string }) {
+  return (
+    <p className={`text-ink-muted line-through ${className}`}>
+      R$ {PRECO_CHEIO}
+      <span className="text-[0.82em]">,00</span>
+    </p>
+  );
+}
+
 function Hero() {
   return (
     <section id="topo" className="relative overflow-hidden pt-[112px] pb-16 md:pt-[144px] md:pb-24">
@@ -544,10 +597,10 @@ function Hero() {
           <div className="mt-9 flex flex-wrap items-end gap-x-10 gap-y-6 rise" style={{ animationDelay: "390ms" }}>
             <div>
               <p className="meta">Acesso completo</p>
-              <p className="text-ink-muted line-through text-sm mt-2">R$ {PRECO_CHEIO}</p>
+              <PrecoCheio className="text-sm mt-2" />
               <div className="flex items-baseline gap-2.5 mt-0.5">
                 <span className="font-display text-gold text-xl font-semibold leading-none">R$</span>
-                <span className="display gilt text-[3rem] leading-none">{PRECO}</span>
+                <Preco tamanho="text-[3rem]" />
               </div>
               <p className="meta mt-2.5">Pagamento único · Sem mensalidades</p>
             </div>
@@ -555,11 +608,19 @@ function Hero() {
             <BuyButton className="max-w-[320px]" />
           </div>
 
-          <ul className="mt-8 flex flex-wrap gap-x-7 gap-y-2 rise" style={{ animationDelay: "480ms" }}>
-            {["12\u00a0meses de acesso", "Garantia de 7\u00a0dias", "Acesso imediato"].map((item) => (
-              <li key={item} className="meta flex items-center gap-2">
-                <Icon name="shield" className="w-[14px] h-[14px] text-gold" />
-                {item}
+          <ul
+            className="mt-8 grid grid-cols-3 gap-2 sm:flex sm:flex-wrap sm:gap-x-7 sm:gap-y-2 rise"
+            style={{ animationDelay: "480ms" }}
+          >
+            {SELOS.map(([primeira, segunda]) => (
+              <li
+                key={primeira}
+                className="meta flex flex-col items-center gap-1 text-center text-[0.6rem] tracking-[0.08em] sm:flex-row sm:gap-2 sm:text-left sm:text-[0.72rem] sm:tracking-[0.14em]"
+              >
+                <Icon name="shield" className="w-[14px] h-[14px] shrink-0 text-gold" />
+                <span>
+                  {primeira} <span className="block sm:inline">{segunda}</span>
+                </span>
               </li>
             ))}
           </ul>
@@ -587,38 +648,6 @@ function Hero() {
             />
           </figcaption>
         </figure>
-      </div>
-    </section>
-  );
-}
-
-/* ═══════════════ PROVA DE VALOR ═══════════════ */
-
-const VALOR = [
-  { n: "6", u: "frentes", d: "Do comportamento com dinheiro ao fechamento da venda", i: "layers" as const },
-  { n: "4", u: "e-books", d: "Material de consulta rápida, para abrir antes da reunião", i: "book" as const },
-  { n: "12", u: "meses", d: "De acesso a tudo, no seu ritmo e de qualquer dispositivo", i: "clock" as const },
-  { n: "7", u: "dias", d: "De garantia integral, sem precisar justificar nada", i: "shield" as const },
-];
-
-function ValueStrip() {
-  return (
-    <section className="relative pb-4">
-      <div className="shell grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-        {VALOR.map((v, i) => (
-          <Reveal key={v.u} delay={i * 70}>
-            <div className="panel panel-lift h-full p-5 md:p-6">
-              <div className="glyph w-10 h-10">
-                <Icon name={v.i} className="w-[19px] h-[19px]" />
-              </div>
-              <p className="mt-4 flex items-baseline gap-1.5">
-                <span className="display gilt text-[1.9rem] leading-none">{v.n}</span>
-                <span className="meta">{v.u}</span>
-              </p>
-              <p className="mt-2 text-[0.85rem] leading-snug text-ink-muted">{v.d}</p>
-            </div>
-          </Reveal>
-        ))}
       </div>
     </section>
   );
@@ -891,7 +920,7 @@ function Transformation() {
         </div>
 
         <Reveal delay={320}>
-          <p className="meta mt-8 normal-case tracking-normal text-ink-faint max-w-[620px]">
+          <p className="meta mt-8 normal-case tracking-normal max-w-[620px]">
             Isto é o que o método ensina a fazer. O resultado de cada pessoa depende da
             aplicação — não existe garantia de faturamento aqui.
           </p>
@@ -1108,73 +1137,6 @@ function Bonus() {
   );
 }
 
-/* ═══════════════ PARA QUEM É ═══════════════ */
-
-const SIM = [
-  "Você já fatura e quer estrutura para o próximo degrau",
-  "Está disposto a aplicar na semana, não a colecionar aula",
-  "Aceita olhar para a própria forma de decidir antes de culpar o mercado",
-  "Quer movimento — e sabe que movimento exige execução",
-];
-
-const NAO = [
-  "Procura fórmula pronta que funcione sem adaptação",
-  "Espera resultado sem mudar nenhuma rotina de decisão",
-  "Quer milagre enlatado com data marcada",
-  "Vai comprar para salvar e assistir um dia",
-];
-
-function Audience() {
-  return (
-    <section className="band">
-      <div className="shell">
-        <Reveal>
-          <p className="eyebrow">Antes de decidir</p>
-          <h2 className="display display-section mt-5 max-w-[620px]">
-            Este método filtra — e isso é de propósito
-          </h2>
-        </Reveal>
-
-        <div className="grid md:grid-cols-2 gap-4 mt-12">
-          <Reveal delay={80}>
-            <div className="panel h-full p-8">
-              <div className="glyph">
-                <Icon name="trending" />
-              </div>
-              <p className="eyebrow mt-5">É para você se</p>
-              <ul className="mt-6 space-y-4">
-                {SIM.map((s) => (
-                  <li key={s} className="flex gap-3.5 text-[0.94rem] leading-relaxed text-ink-soft">
-                    <Tick />
-                    <span>{s}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </Reveal>
-
-          <Reveal delay={160}>
-            <div className="panel-quiet h-full p-8">
-              <div className="glyph border-white/10 bg-white/[0.03] text-ink-faint">
-                <Icon name="clock" />
-              </div>
-              <p className="meta mt-5">Não é para você se</p>
-              <ul className="mt-6 space-y-4">
-                {NAO.map((s) => (
-                  <li key={s} className="flex gap-3.5 text-[0.94rem] leading-relaxed text-ink-muted">
-                    <Cross />
-                    <span>{s}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </Reveal>
-        </div>
-      </div>
-    </section>
-  );
-}
-
 /* ═══════════════ QUEM CONDUZ ═══════════════ */
 
 function Mentor() {
@@ -1309,10 +1271,10 @@ function Offer() {
             </ul>
 
             <div className="mt-10 pt-9 border-t border-white/[0.08] text-center">
-              <p className="text-ink-muted line-through text-sm">R$ {PRECO_CHEIO}</p>
+              <PrecoCheio className="text-sm" />
               <div className="flex items-baseline justify-center gap-3 mt-2">
                 <span className="font-display text-gold text-2xl font-semibold leading-none">R$</span>
-                <span className="display gilt text-[4rem] leading-none">{PRECO}</span>
+                <Preco tamanho="text-[4rem]" />
               </div>
               <p className="display-sm mt-4">Pagamento único — sem mensalidades</p>
 
@@ -1479,7 +1441,7 @@ function FinalPurchase() {
             <p className="display-sm">Acesso completo ao método</p>
             <div className="flex items-baseline justify-center gap-2.5 mt-4">
               <span className="font-display text-gold text-xl font-semibold leading-none">R$</span>
-              <span className="display gilt text-[3.2rem] leading-none">{PRECO}</span>
+              <Preco tamanho="text-[3.2rem]" />
             </div>
             <p className="meta mt-3">Pagamento único · 12 meses de acesso</p>
             <BuyButton className="cta-wide mt-7" />
@@ -1579,7 +1541,6 @@ export default function Home() {
       <Header />
       <main id="conteudo-principal" className="relative z-[1]">
         <Hero />
-        <ValueStrip />
         <Diagnosis />
         <Wave id="um" />
         <Mechanism />
@@ -1588,7 +1549,6 @@ export default function Home() {
         <Method />
         <Deliverables />
         <Bonus />
-        <Audience />
         <Wave id="tres" />
         <Mentor />
         <Offer />
