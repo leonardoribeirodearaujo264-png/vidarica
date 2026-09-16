@@ -21,7 +21,7 @@ navegador bloqueia o Pixel.
 | Evento | Quando dispara | Dados |
 | --- | --- | --- |
 | `PageView` | Uma vez por carregamento | — |
-| `ViewContent` | Ao rolar até a seção `#oferta` (uma vez por visita) | `content_type`, `content_ids`, `currency`, `value` |
+| `ViewContent` | Ao rolar até a seção `#oferta` (uma vez por visita) | `content_type`, `content_ids`, `content_name`, `currency`, `value` (197 BRL) |
 | `Contact` | Clique em WhatsApp, Instagram ou e-mail | `channel` |
 
 ### InitiateCheckout e Purchase — só a Kiwify

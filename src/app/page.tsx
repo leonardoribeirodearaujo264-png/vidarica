@@ -2,713 +2,697 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { motion, useScroll, useTransform, useInView, AnimatePresence } from "framer-motion";
 import { trackContact, trackViewContent } from "@/lib/meta-pixel";
+import retratoTopo from "../../public/images/deyllane-hero.jpg";
+import retratoMentora from "../../public/images/deyllane-mentora.jpg";
 
-/* ═══════════════ FEATURE FLAGS ═══════════════ */
-const MOSTRAR_DEPOIMENTOS = false;
-const MOSTRAR_ESTATISTICAS = false;
+/* ═══════════════ CONSTANTES ═══════════════ */
 
-/* ═══════════════ CONSTANTS ═══════════════ */
+/* TODO: trocar pelo checkout do Sinapse Empresarial (R$ 197).
+   Este link ainda é o do Vida Rica (R$ 97). */
 const KIWIFY = "https://pay.kiwify.com.br/COIbRyc";
-type Ease = [number, number, number, number];
-const EASE: Ease = [0.16, 1, 0.3, 1];
-const WA_LINK = "https://wa.me/5598985679867?text=Ol%C3%A1!%20Tenho%20interesse%20no%20Vida%20Rica";
-const INSTA = "https://instagram.com/lacerdadeyllane";
-const CTA_TEXT = "Quero começar agora";
 
-/* ═══════════════ HELPERS ═══════════════ */
-function R({ children, className = "", d = 0, y = 14 }: { children: ReactNode; className?: string; d?: number; y?: number }) {
+const WA_LINK =
+  "https://wa.me/5598985679867?text=Ol%C3%A1!%20Tenho%20interesse%20no%20Sinapse%20Empresarial";
+const INSTA = "https://instagram.com/lacerdadeyllane";
+const EMAIL = "dey.lacerda82@gmail.com";
+
+const PRECO = "197";
+/* Valor cheio usado como âncora. Só mantenha se este preço já foi
+   praticado de verdade — anunciar desconto que nunca existiu é risco no CDC. */
+const PRECO_CHEIO = "497";
+
+const CTA_LABEL = "Começar agora";
+
+/* ═══════════════ PRIMITIVOS ═══════════════ */
+
+/** Revela no scroll. Sem IntersectionObserver, entrega o conteúdo visível. */
+function Reveal({
+  children,
+  className = "",
+  delay = 0,
+}: {
+  children: ReactNode;
+  className?: string;
+  delay?: number;
+}) {
   const ref = useRef<HTMLDivElement>(null);
-  const v = useInView(ref, { once: true, margin: "-40px 0px" });
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    if (typeof IntersectionObserver === "undefined") {
+      el.classList.add("is-in");
+      return;
+    }
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            el.classList.add("is-in");
+            io.disconnect();
+          }
+        }
+      },
+      { rootMargin: "0px 0px -10% 0px", threshold: 0.05 },
+    );
+
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
   return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y }}
-      animate={v ? { opacity: 1, y: 0 } : { opacity: 0, y }}
-      transition={{ duration: 0.6, delay: d, ease: EASE }}
-      className={className}
-    >
+    <div ref={ref} data-reveal className={className} style={{ transitionDelay: `${delay}ms` }}>
       {children}
-    </motion.div>
+    </div>
   );
 }
 
 function Arrow() {
   return (
-    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden>
+      <path d="M5 12h13m0 0l-5-5m5 5l-5 5" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
 
-function Check({ gold = true }: { gold?: boolean }) {
-  const color = gold ? "#C9A84C" : "#C9A84C";
+function Tick() {
   return (
-    <div className="shrink-0 w-5 h-5 rounded-full flex items-center justify-center mt-0.5" style={{ background: `linear-gradient(135deg, ${color}, ${color}cc)` }}>
-      <svg className="w-3 h-3 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-      </svg>
-    </div>
+    <svg className="w-[18px] h-[18px] shrink-0 mt-[3px] text-gold" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path d="M4 12.5l5 5L20 6.5" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
   );
 }
 
-function Eyebrow({ children, lilac = false }: { children: ReactNode; lilac?: boolean }) {
+function InstagramGlyph() {
   return (
-    <p
-      className="text-[11px] font-semibold tracking-[0.2em] uppercase mb-5 text-center"
-      style={{ color: lilac ? "var(--color-lilac)" : "var(--color-gold)" }}
-    >
-      {children}
-    </p>
+    <svg className="w-[17px] h-[17px] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden>
+      <rect x="3" y="3" width="18" height="18" rx="5" strokeWidth={1.6} />
+      <circle cx="12" cy="12" r="4" strokeWidth={1.6} />
+      <circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none" />
+    </svg>
   );
 }
 
-/* ════════════════════════════════════════════
-   HEADER
-   ════════════════════════════════════════════ */
+function Shield() {
+  return (
+    <svg className="w-7 h-7 shrink-0 text-gold" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M12 3l7 2.6v5.2c0 4.3-2.9 8.2-7 9.2-4.1-1-7-4.9-7-9.2V5.6L12 3z"
+        stroke="currentColor"
+        strokeWidth={1.5}
+        strokeLinejoin="round"
+      />
+      <path d="M8.8 12.1l2.2 2.2 4.2-4.4" stroke="currentColor" strokeWidth={1.7} strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+/* ═══════════════ CABEÇALHO ═══════════════ */
+
+const NAV = [
+  { href: "#tese", label: "A tese" },
+  { href: "#metodo", label: "Método" },
+  { href: "#bonus", label: "Bônus" },
+  { href: "#oferta", label: "Investimento" },
+];
+
 function Header() {
-  const [scrolled, setScrolled] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [solid, setSolid] = useState(false);
+  const [open, setOpen] = useState(false);
+  const toggleRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const h = () => setScrolled(window.scrollY > 100);
-    window.addEventListener("scroll", h, { passive: true });
-    return () => window.removeEventListener("scroll", h);
+    const onScroll = () => setSolid(window.scrollY > 24);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  /* Menu aberto: Esc fecha, o fundo nao rola, o Tab fica preso no painel
+     e o foco volta para o botao ao sair. */
   useEffect(() => {
-    document.body.classList.toggle("mobile-menu-open", menuOpen);
-    return () => document.body.classList.remove("mobile-menu-open");
-  }, [menuOpen]);
+    if (!open) return;
 
-  const links = [
-    { label: "Sobre", href: "#sobre" },
-    { label: "Método", href: "#metodo" },
-    { label: "Oferta", href: "#oferta" },
-    { label: "Dúvidas", href: "#duvidas" },
-  ];
-  const close = () => setMenuOpen(false);
+    const panel = panelRef.current;
+    const toggle = toggleRef.current;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    panel?.querySelector<HTMLElement>("a, button")?.focus();
 
-  return (
-    <>
-      <motion.header
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.1 }}
-        className={`top-0 inset-x-0 z-50 transition-all duration-500 ${
-          scrolled
-            ? "fixed lg:bg-[#0A0908] lg:border-b lg:border-white/[0.04] bg-transparent"
-            : "absolute bg-transparent"
-        }`}
-      >
-        <div className="section-container flex items-center justify-between h-[68px]">
-          <a href="#" onClick={close} className="relative z-10 hidden lg:block focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold">
-            <Image src="/images/logo.png" alt="Vida Rica" width={120} height={40} className="h-9 w-auto" priority />
-          </a>
-          <nav className="hidden lg:flex items-center gap-8">
-            {links.map((l) => (
-              <a key={l.href} href={l.href} className="text-[13px] text-text-muted hover:text-text-primary transition-colors duration-300 tracking-wide focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold">
-                {l.label}
-              </a>
-            ))}
-            <a href={KIWIFY} target="_blank" rel="noopener noreferrer" className="ml-4 text-[13px] font-semibold text-bg-base bg-gradient-to-r from-gold to-[#E8D48B] px-6 py-2.5 rounded-lg hover:shadow-lg hover:shadow-gold/20 transition-all duration-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold">
-              {CTA_TEXT}
-            </a>
-          </nav>
-          <button onClick={() => setMenuOpen(!menuOpen)} className="lg:hidden flex flex-col gap-[5px] min-w-[44px] min-h-[44px] items-center justify-center cursor-pointer relative z-10 ml-auto focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold" aria-label="Menu" style={{ filter: "drop-shadow(0 2px 8px rgba(0,0,0,0.6))" }}>
-            <span className={`block w-5 h-[1.5px] bg-white transition-all duration-300 ${menuOpen ? "rotate-45 translate-y-[6.5px]" : ""}`} />
-            <span className={`block w-5 h-[1.5px] bg-white transition-all duration-300 ${menuOpen ? "opacity-0" : ""}`} />
-            <span className={`block w-5 h-[1.5px] bg-white transition-all duration-300 ${menuOpen ? "-rotate-45 -translate-y-[6.5px]" : ""}`} />
-          </button>
-        </div>
-      </motion.header>
-
-      <AnimatePresence>
-        {menuOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-40 bg-bg-base/98 backdrop-blur-2xl flex flex-col items-center justify-center gap-8"
-          >
-            {links.map((l, i) => (
-              <motion.a key={l.href} href={l.href} onClick={close} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 + i * 0.08, duration: 0.4 }} className="text-xl text-text-secondary hover:text-gold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold">
-                {l.label}
-              </motion.a>
-            ))}
-            <motion.a href={KIWIFY} target="_blank" rel="noopener noreferrer" onClick={close} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5, duration: 0.4 }} className="cta-primary mt-4">
-              {CTA_TEXT}
-            </motion.a>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </>
-  );
-}
-
-/* ════════════════════════════════════════════
-   MOBILE CTA BAR
-   ════════════════════════════════════════════ */
-function MobileCta() {
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const h = () => {
-      const pastThreshold = window.scrollY > 600;
-      const offerSection = document.getElementById("oferta");
-      let offerVisible = false;
-      if (offerSection) {
-        const r = offerSection.getBoundingClientRect();
-        offerVisible = r.top < window.innerHeight && r.bottom > 0;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setOpen(false);
+        return;
       }
-      setVisible(pastThreshold && !offerVisible);
+      if (event.key !== "Tab" || !panel) return;
+
+      const focusables = panel.querySelectorAll<HTMLElement>("a[href], button:not([disabled])");
+      if (focusables.length === 0) return;
+
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
     };
-    window.addEventListener("scroll", h, { passive: true });
-    h();
-    return () => window.removeEventListener("scroll", h);
-  }, []);
+
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      document.body.style.overflow = previousOverflow;
+      toggle?.focus();
+    };
+  }, [open]);
 
   return (
-    <div className={`mobile-cta-bar lg:hidden ${visible ? "visible" : ""}`}>
-      <div className="flex items-center justify-between gap-3">
-        <div className="shrink-0 whitespace-nowrap">
-          <p className="text-gold text-xs font-semibold">67% OFF</p>
-          <p className="text-[12px]">
-            <span className="text-text-muted/45 line-through text-[11px]">R$ 297</span>{" "}
-            <span className="text-text-primary font-semibold">R$ 97</span>
-          </p>
-        </div>
-        <a href={KIWIFY} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 bg-gradient-to-b from-[#E0C55C] via-[#C9A84C] to-[#B8942F] text-[#0d0b07] font-semibold text-sm min-w-[150px] h-12 px-5 rounded-full border-t border-white/25 whitespace-nowrap shrink-0">
-          Comprar agora <Arrow />
-        </a>
-      </div>
-    </div>
-  );
-}
-
-/* ════════════════════════════════════════════
-   HERO
-   ════════════════════════════════════════════ */
-function Hero() {
-  const ref = useRef<HTMLElement>(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
-  const imgY = useTransform(scrollYProgress, [0, 1], [0, 40]);
-
-  return (
-    <section ref={ref} className="relative overflow-hidden">
-      {/* ── MOBILE LAYOUT ── */}
-      <div className="lg:hidden">
-        {/* Full-bleed photo — starts at y=0, behind header */}
-        <div className="relative w-full" style={{ height: "60vh" }}>
+    <header
+      className={`fixed inset-x-0 top-0 z-50 transition-colors duration-300 ${
+        solid || open ? "bg-abyss/92 backdrop-blur-lg border-b border-white/[0.06]" : ""
+      }`}
+    >
+      <div className="shell flex items-center gap-6 h-[68px]">
+        <a
+          href="#topo"
+          className="flex items-center gap-2.5 shrink-0 min-h-[44px]"
+          aria-label="Sinapse Empresarial — ir para o topo"
+        >
           <Image
-            src="/images/hero-photo.jpeg"
-            alt="Deyllane Lacerda"
-            fill
-            className="object-cover"
-            style={{ objectPosition: "center 20%" }}
+            src="/images/logo-sinapse-mark.png"
+            alt=""
+            width={560}
+            height={400}
+            className="h-8 w-auto"
             priority
           />
-          {/* Dissolve — bottom to top, using exact bg color */}
-          <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-[#0A0908] from-0% via-[#0A0908]/85 via-[35%] to-transparent to-[65%]" />
-        </div>
+          <span className="hidden sm:block font-display text-[0.82rem] font-semibold tracking-[0.13em] uppercase text-ink">
+            Sinapse Empresarial
+          </span>
+        </a>
 
-        {/* Text content — overlaps the dissolved photo */}
-        <div className="relative z-10 px-6 -mt-32">
-          <motion.h1 initial={{ opacity: 0, y: 25 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1, delay: 0.3, ease: EASE }} className="heading-hero mb-5">
-            Por que você ganha dinheiro e{" "}
-            <span className="gold-text">ainda se sente preso?</span>
-          </motion.h1>
-
-          <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.6, ease: EASE }} className="text-text-secondary text-[15px] leading-relaxed mb-7">
-            Seus padrões emocionais controlam cada decisão financeira. Aprenda a{" "}
-            <strong className="text-text-primary font-medium">pensar, decidir e agir diferente</strong> com o dinheiro.
-          </motion.p>
-
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.9, ease: EASE }} className="flex flex-col gap-5">
-            {/* Price — single baseline row */}
-            <div>
-              <span className="inline-block text-[10px] font-bold tracking-[0.1em] uppercase text-emerald-400 bg-emerald-400/10 px-2.5 py-1 rounded-full border border-emerald-400/20 mb-2">-67% OFF</span>
-              <div className="flex items-baseline gap-3">
-                <span className="text-red-400 text-sm line-through" style={{ opacity: 0.7 }}>R$ 297</span>
-                <span className="font-display text-gold text-sm font-medium" style={{ lineHeight: 1 }}>R$</span>
-                <span className="font-display gold-text text-[2.25rem] font-bold" style={{ lineHeight: 1, marginLeft: "-6px" }}>97</span>
-              </div>
-              <p className="text-text-muted text-[11px] mt-2">Pagamento único</p>
-            </div>
-
-            <a id="hero-cta" href={KIWIFY} target="_blank" rel="noopener noreferrer" className="cta-primary hero-cta text-[15px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold">
-              {CTA_TEXT} <Arrow />
+        <nav aria-label="Seções da página" className="hidden lg:flex items-center gap-7 ml-auto">
+          {NAV.map((item) => (
+            <a
+              key={item.href}
+              href={item.href}
+              className="inline-flex items-center min-h-[44px] px-1 text-[0.86rem] text-ink-muted hover:text-ink transition-colors duration-200"
+            >
+              {item.label}
             </a>
-          </motion.div>
+          ))}
+          <a
+            href={INSTA}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => trackContact("instagram_header")}
+            className="inline-flex items-center gap-2 min-h-[44px] px-1 text-[0.86rem] text-ink-muted hover:text-gold transition-colors duration-200"
+          >
+            <InstagramGlyph />
+            @lacerdadeyllane
+          </a>
+        </nav>
 
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8, delay: 1.3 }} className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1.5 mt-6 text-text-muted text-[10px]" style={{ opacity: 0.65 }}>
-            <span className="flex items-center gap-1">
-              <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
-              Compra segura
-            </span>
-            <span className="text-white/10">|</span>
-            <span className="flex items-center gap-1">
-              <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
-              7 dias de garantia
-            </span>
-          </motion.div>
+        <a
+          href={KIWIFY}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="cta ml-auto lg:ml-0 hidden sm:inline-flex min-h-[44px] px-5 text-[0.78rem]"
+        >
+          {CTA_LABEL}
+        </a>
 
-          <div className="pb-10" />
-        </div>
+        <button
+          ref={toggleRef}
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          aria-expanded={open}
+          aria-controls="menu-mobile"
+          className="lg:hidden ml-auto sm:ml-0 grid place-items-center w-11 h-11 rounded-lg border border-white/10 text-ink hover:border-gold/40 transition-colors"
+        >
+          <span className="sr-only">{open ? "Fechar menu" : "Abrir menu"}</span>
+          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden>
+            {open ? (
+              <path d="M6 6l12 12M18 6L6 18" strokeWidth={1.8} strokeLinecap="round" />
+            ) : (
+              <path d="M4 7h16M4 12h16M4 17h16" strokeWidth={1.8} strokeLinecap="round" />
+            )}
+          </svg>
+        </button>
       </div>
 
-      {/* ── DESKTOP LAYOUT ── */}
-      <div className="hidden lg:flex items-center min-h-screen">
-        {/* Ambient glows */}
-        <div className="glow-gold" style={{ top: "-15%", right: "-5%" }} />
-        <div className="absolute bottom-[-10%] left-[10%] w-[400px] h-[400px] bg-gold-glow rounded-full blur-[160px] pointer-events-none" />
-
-        <div className="relative z-10 section-container w-full pt-28 pb-16">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            <div className="max-w-[520px]">
-              <motion.h1 initial={{ opacity: 0, y: 25 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1, delay: 0.5, ease: EASE }} className="heading-hero mb-6">
-                Por que você ganha dinheiro e{" "}
-                <span className="gold-text">ainda se sente preso?</span>
-              </motion.h1>
-
-              <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.8, ease: EASE }} className="text-text-secondary text-base leading-relaxed mb-8 max-w-[480px]">
-                Seus padrões emocionais controlam cada decisão financeira. Aprenda a{" "}
-                <strong className="text-text-primary font-medium">pensar, decidir e agir diferente</strong> com o dinheiro.
-              </motion.p>
-
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 1.1, ease: EASE }} className="flex flex-col items-start gap-5">
-                {/* Price — single baseline row */}
-                <div>
-                  <span className="inline-block text-[10px] font-bold tracking-[0.1em] uppercase text-emerald-400 bg-emerald-400/10 px-2.5 py-1 rounded-full border border-emerald-400/20 mb-2">-67% OFF</span>
-                  <div className="flex items-baseline gap-3">
-                    <span className="text-red-400 text-sm line-through" style={{ opacity: 0.7 }}>R$ 297</span>
-                    <span className="font-display text-gold text-base font-medium" style={{ lineHeight: 1 }}>R$</span>
-                    <span className="font-display gold-text text-[2.75rem] font-bold" style={{ lineHeight: 1, marginLeft: "-6px" }}>97</span>
-                  </div>
-                  <p className="text-text-muted text-[11px] mt-2">Pagamento único</p>
-                </div>
-
-                <a id="hero-cta" href={KIWIFY} target="_blank" rel="noopener noreferrer" className="cta-primary text-[15px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold">
-                  {CTA_TEXT} <Arrow />
+      {open && (
+        <>
+          <div
+            aria-hidden="true"
+            onClick={() => setOpen(false)}
+            className="lg:hidden fixed inset-x-0 bottom-0 top-[68px] bg-abyss/78 backdrop-blur-sm"
+          />
+          <div
+            id="menu-mobile"
+            ref={panelRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Navegação"
+            className="lg:hidden relative z-10 border-t border-white/[0.06] bg-abyss/98 backdrop-blur-xl rise"
+          >
+            <nav className="shell py-4 flex flex-col">
+              {NAV.map((item) => (
+                <a
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setOpen(false)}
+                  className="flex items-center min-h-[52px] border-b border-white/[0.05] text-ink-soft hover:text-gold transition-colors"
+                >
+                  {item.label}
                 </a>
-              </motion.div>
-
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8, delay: 1.5 }} className="flex flex-wrap items-center gap-x-3 gap-y-1.5 mt-6 text-text-muted text-[10px]" style={{ opacity: 0.65 }}>
-                <span className="flex items-center gap-1">
-                  <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
-                  Compra segura
-                </span>
-                <span className="text-white/10">|</span>
-                <span className="flex items-center gap-1">
-                  <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
-                  7 dias de garantia
-                </span>
-              </motion.div>
-            </div>
-
-            <motion.div className="flex justify-end" initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1.2, delay: 0.3, ease: EASE }} style={{ y: imgY }}>
-              <div className="relative w-[400px]">
-                <Image src="/images/hero-photo.jpeg" alt="Deyllane Lacerda" width={400} height={530} className="w-full h-auto object-cover" priority />
-                {/* Bottom dissolve */}
-                <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#0A0908] via-[#0A0908]/70 to-transparent pointer-events-none" />
-                {/* Left dissolve */}
-                <div className="absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-[#0A0908] via-[#0A0908]/50 to-transparent pointer-events-none" />
-                {/* Top dissolve */}
-                <div className="absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-[#0A0908] to-transparent pointer-events-none" />
-              </div>
-            </motion.div>
-          </div>
-        </div>
-
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 2, duration: 1 }} className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center">
-          <motion.div animate={{ y: [0, 6, 0] }} transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }} className="w-[1px] h-6 bg-gradient-to-b from-gold/30 to-transparent" />
-        </motion.div>
-      </div>
-    </section>
-  );
-}
-
-/* ════════════════════════════════════════════
-   "VOCÊ SE IDENTIFICA?" — 3 camadas visuais distintas
-   ════════════════════════════════════════════ */
-function PainSection() {
-  return (
-    <section className="relative section-pad overflow-hidden scroll-mt-[88px]">
-      <div className="absolute inset-0 bg-gradient-to-b from-bg-base via-bg-sunken to-bg-base" />
-      <div className="divider-gold absolute top-0 inset-x-0" />
-
-      <div className="relative z-10 section-container max-w-[820px]">
-        <R><Eyebrow>Você se identifica?</Eyebrow></R>
-        <R d={0.06}>
-          <h2 className="heading-section text-center mb-4">
-            Você não tem um problema com dinheiro.{" "}
-            <span className="gold-text">Você tem camadas.</span>
-          </h2>
-        </R>
-        <R d={0.1}>
-          <p className="text-text-muted text-center text-[15px] max-w-lg mx-auto mb-16">
-            A maioria trata o sintoma. O que controla seu dinheiro está muito mais fundo.
-          </p>
-        </R>
-
-        {/* Timeline connector */}
-        <div className="relative">
-          {/* Vertical line */}
-          <div className="absolute left-[19px] top-0 bottom-0 w-[1px] bg-gradient-to-b from-white/[0.06] via-gold/20 to-gold/40 hidden sm:block" />
-
-          {/* Camada 1 — Superfície */}
-          <R d={0.14}>
-            <div className="relative pl-0 sm:pl-14 mb-12">
-              <div className="flex items-center gap-3 mb-5">
-                <div className="relative z-10 w-10 h-10 rounded-full bg-bg-elevated border border-white/[0.08] flex items-center justify-center text-sm text-text-muted font-display font-bold shrink-0">01</div>
-                <p className="text-text-muted text-[11px] font-semibold tracking-[0.2em] uppercase">O que aparece na superfície</p>
-              </div>
-              <div className="grid sm:grid-cols-2 gap-3">
-                {[
-                  "O dinheiro entra e some — você não sabe para onde foi",
-                  "A fatura do cartão é sempre maior do que esperava",
-                  "Já tentou planilha, app, anotação — nada funcionou",
-                ].map((item, i) => (
-                  <div key={i} className="glass-card flex items-center gap-3 px-5 py-4">
-                    <span className="text-text-muted text-sm shrink-0">—</span>
-                    <p className="text-text-secondary text-[13px] leading-relaxed">{item}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </R>
-
-          {/* Camada 2 — Emocional */}
-          <R d={0.2}>
-            <div className="relative pl-0 sm:pl-14 mb-12">
-              <div className="flex items-center gap-3 mb-5">
-                <div className="relative z-10 w-10 h-10 rounded-full bg-bg-elevated border border-lilac/20 flex items-center justify-center text-sm text-lilac font-display font-bold shrink-0">02</div>
-                <p className="text-lilac text-[11px] font-semibold tracking-[0.2em] uppercase">O que dói por dentro</p>
-              </div>
-              <div className="bg-bg-sunken rounded-2xl border border-lilac/[0.08] p-6 sm:p-8 max-w-[560px]">
-                <div className="border-l-2 border-lilac/20 pl-5 space-y-4">
-                  {[
-                    "Vergonha de admitir que não sabe lidar com dinheiro",
-                    "Ansiedade toda vez que abre o extrato ou a fatura",
-                    "Medo de chegar aos 60 sem nenhuma segurança financeira",
-                  ].map((item, i) => (
-                    <p key={i} className="text-text-secondary text-sm italic leading-relaxed">{item}</p>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </R>
-
-          {/* Camada 3 — Raiz */}
-          <R d={0.26}>
-            <div className="relative pl-0 sm:pl-14 mb-12">
-              <div className="flex items-center gap-3 mb-5">
-                <div className="relative z-10 w-10 h-10 rounded-full bg-gold/10 border border-gold/25 flex items-center justify-center text-sm text-gold font-display font-bold shrink-0">03</div>
-                <p className="text-gold text-[11px] font-semibold tracking-[0.2em] uppercase">A raiz que ninguém te mostrou</p>
-              </div>
-              <div className="gold-border-card p-6 sm:p-8">
-                <p className="text-text-primary text-base sm:text-lg leading-[1.8] font-display">
-                  Crenças herdadas — <span className="text-gold italic">&ldquo;dinheiro é sujo&rdquo;</span>, <span className="text-gold italic">&ldquo;rico é desonesto&rdquo;</span> — que se transformaram em ciclos de culpa e recompensa. Uma identidade construída em torno de <span className="text-text-primary font-semibold">&ldquo;não sou boa com dinheiro&rdquo;</span>, repetida sem consciência, geração após geração.
-                </p>
-              </div>
-            </div>
-          </R>
-        </div>
-
-        {/* Ponte */}
-        <R d={0.3}>
-          <div className="relative pl-6 border-l-2 border-gold/20 py-3 mt-4 mb-8">
-            <p className="font-display text-lg sm:text-xl text-text-secondary italic leading-relaxed">
-              &ldquo;A maioria dos cursos começa pela planilha e ignora a raiz.
-              O <span className="not-italic gold-text font-semibold">Vida Rica</span> começa pela sua mente.&rdquo;
-            </p>
-          </div>
-        </R>
-
-        <R d={0.35}>
-          <div className="text-center">
-            <a href="#metodo" className="inline-flex items-center gap-2 text-gold text-sm font-medium hover:text-[#E8D48B] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold">
-              Conheça o método que resolve isso
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" /></svg>
-            </a>
-          </div>
-        </R>
-      </div>
-    </section>
-  );
-}
-
-/* ════════════════════════════════════════════
-   SEGMENTAÇÃO — 3 perfis
-   ════════════════════════════════════════════ */
-function SegmentationSection() {
-  const profiles = [
-    {
-      title: "Vive no vermelho",
-      quote: "Todo mês eu juro que vou me organizar, mas nunca consigo.",
-      diagnosis: "Sabe que precisa mudar, mas não sabe por onde começar. Trabalha para pagar contas, não para viver.",
-      result: "Sair do ciclo de endividamento e criar sua primeira reserva.",
-    },
-    {
-      title: "Se organiza, mas trava",
-      quote: "Eu ganho bem, mas no fim do mês... cadê o dinheiro?",
-      diagnosis: "Não está devendo, mas algo invisível te trava — e não é falta de informação.",
-      result: "Parar de sabotar seu crescimento e construir patrimônio conscientemente.",
-    },
-    {
-      title: "Quer ir mais longe",
-      quote: "Já me organizo, mas sei que minha mentalidade me limita.",
-      diagnosis: "Tem controle básico, mas crenças antigas sobre riqueza ainda operam por baixo das decisões.",
-      result: "Desbloquear o próximo nível de prosperidade e liberdade com o dinheiro.",
-    },
-  ];
-
-  return (
-    <section className="relative section-pad overflow-hidden scroll-mt-[88px]">
-      <div className="absolute inset-0 bg-bg-base" />
-      <div className="divider-lilac absolute top-0 inset-x-0" />
-
-      <div className="relative z-10 section-container max-w-[1100px]">
-        <R><Eyebrow lilac>Para quem é o Vida Rica?</Eyebrow></R>
-        <R d={0.06}>
-          <h2 className="heading-section text-center mb-4">
-            Não importa de onde você começa.{" "}
-            <span className="lilac-text">Existe um caminho.</span>
-          </h2>
-        </R>
-        <R d={0.1}>
-          <p className="text-text-muted text-center text-[15px] max-w-md mx-auto mb-14">
-            Três perfis diferentes, um único método que se adapta à sua realidade.
-          </p>
-        </R>
-
-        <div className="grid md:grid-cols-3 gap-5">
-          {profiles.map((p, i) => (
-            <R key={i} d={0.14 + i * 0.07}>
-              <div className="glass-card p-6 sm:p-7 h-full flex flex-col">
-                <h3 className="text-text-primary font-semibold text-base mb-3">{p.title}</h3>
-                <p className="text-lilac/80 text-sm italic mb-4 border-l-2 border-lilac/15 pl-3">&ldquo;{p.quote}&rdquo;</p>
-                <p className="text-text-muted text-[13px] leading-relaxed mb-5">{p.diagnosis}</p>
-                <div className="mt-auto flex items-start gap-2 bg-gold/[0.04] rounded-lg p-3 border border-gold/[0.08]">
-                  <Check />
-                  <p className="text-text-secondary text-[13px] leading-relaxed">{p.result}</p>
-                </div>
-              </div>
-            </R>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ════════════════════════════════════════════
-   MENTORA
-   ════════════════════════════════════════════ */
-function MentorSection() {
-  const ref = useRef<HTMLElement>(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
-  const imgY = useTransform(scrollYProgress, [0, 1], [-12, 12]);
-
-  return (
-    <section ref={ref} className="relative section-pad overflow-hidden scroll-mt-[88px]" id="sobre">
-      <div className="absolute inset-0 bg-gradient-to-b from-bg-base via-bg-elevated/30 to-bg-base" />
-      <div className="divider-gold absolute top-0 inset-x-0" />
-      <div className="glow-gold" style={{ bottom: 0, right: 0 }} />
-
-      <div className="relative z-10 section-container max-w-[1100px]">
-        <div className="grid lg:grid-cols-[1fr_1.2fr] gap-10 lg:gap-16 items-center">
-          <R y={0}>
-            <motion.div style={{ y: imgY }} className="relative flex justify-center lg:justify-start">
-              <div className="relative w-[260px] sm:w-[320px] lg:w-full max-w-[400px]">
-                <div className="glow-gold -inset-8 !w-auto !h-auto !rounded-2xl blur-2xl" />
-                <div className="relative overflow-hidden rounded-2xl shadow-2xl shadow-black/30" style={{ border: "1px solid rgba(201,168,76,0.1)" }}>
-                  <Image src="/images/about-photo.jpeg" alt="Deyllane Lacerda" width={560} height={750} className="w-full h-auto object-cover" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-bg-base/40 via-transparent to-transparent" />
-                </div>
-              </div>
-            </motion.div>
-          </R>
-
-          <div>
-            <R><Eyebrow>Sua Mentora</Eyebrow></R>
-            <R d={0.06}>
-              <h2 className="font-display text-3xl sm:text-4xl font-bold mb-2 tracking-tight text-text-primary">Deyllane Lacerda</h2>
-            </R>
-            <R d={0.1}>
-              <p className="text-gold text-xs tracking-[0.15em] uppercase mb-7">Economista &middot; Contadora &middot; Especialista em Finanças Comportamentais</p>
-            </R>
-
-            <R d={0.14}>
-              <p className="text-text-secondary text-[15px] leading-[1.85] mb-4 max-w-[540px]">
-                Formada em Economia e Contabilidade, Deyllane percebeu que o conhecimento técnico <strong className="text-text-primary font-medium">não resolvia o problema real</strong> das pessoas com dinheiro. O erro não estava na conta — <strong className="text-text-primary font-medium">estava na mente.</strong>
-              </p>
-            </R>
-            <R d={0.18}>
-              <p className="text-text-secondary text-[15px] leading-[1.85] mb-6 max-w-[540px]">
-                Ela uniu economia, neurociência e psicologia comportamental em um único método — o <span className="gold-text font-semibold">Vida Rica</span>.
-              </p>
-            </R>
-
-            <R d={0.22}>
-              <div className="py-5 border-t border-b border-white/[0.06] mb-6 max-w-[540px]">
-                <p className="font-display text-base sm:text-lg text-text-secondary italic leading-relaxed">
-                  &ldquo;Uma Vida Rica não começa quando você ganha mais. Começa quando você aprende a <span className="not-italic gold-text font-semibold">pensar, decidir e agir diferente</span> com o dinheiro.&rdquo;
-                </p>
-                <p className="text-gold text-xs mt-3 tracking-wider">— Deyllane Lacerda</p>
-              </div>
-            </R>
-
-            <R d={0.26}>
-              <a href={INSTA} onClick={() => trackContact("instagram_mentora")} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-text-muted hover:text-lilac transition-colors text-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" /></svg>
-                @lacerdadeyllane
+              ))}
+              <a
+                href={KIWIFY}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setOpen(false)}
+                className="cta mt-5 mb-2"
+              >
+                {CTA_LABEL} <Arrow />
               </a>
-            </R>
+            </nav>
           </div>
-        </div>
-      </div>
-    </section>
+        </>
+      )}
+    </header>
   );
 }
 
-/* ════════════════════════════════════════════
-   MÉTODO — 4 pilares
-   ════════════════════════════════════════════ */
-function MethodSection() {
-  const pillars = [
-    { n: "01", title: "Finanças Comportamentais", desc: "Entenda como emoções e crenças sabotam cada decisão financeira que você toma.", tag: null },
-    { n: "02", title: "Mentalidade Financeira", desc: "Reprograme a forma como você pensa sobre dinheiro, riqueza e prosperidade.", tag: null },
-    { n: "03", title: "Neurociência Aplicada", desc: "Descubra como o cérebro processa escolhas financeiras e crie hábitos a seu favor.", tag: "Diferencial único" },
-    { n: "04", title: "Organização Prática", desc: "Ferramentas e sistemas reais para o dia a dia. Sem planilha complicada, sem jargão.", tag: null },
-  ];
+/* ═══════════════ TOPO ═══════════════ */
 
+function Hero() {
   return (
-    <section className="relative section-pad overflow-hidden scroll-mt-[88px]" id="metodo">
-      <div className="absolute inset-0 bg-bg-base" />
-      <div className="divider-gold absolute top-0 inset-x-0" />
+    <section id="topo" className="relative overflow-hidden pt-[116px] pb-20 md:pt-[148px] md:pb-28">
+      <div className="aura w-[640px] h-[640px] -top-[260px] -left-[180px]" />
+      <div className="aura w-[520px] h-[520px] top-[120px] -right-[200px] opacity-70" />
 
-      <div className="relative z-10 section-container max-w-[1000px]">
-        <R><Eyebrow>O Método Vida Rica</Eyebrow></R>
-        <R d={0.06}>
-          <h2 className="heading-section text-center mb-4">
-            Não é um curso. É uma{" "}
-            <span className="gold-text">jornada em 4 pilares.</span>
-          </h2>
-        </R>
-        <R d={0.1}>
-          <p className="text-text-muted text-center text-[15px] max-w-lg mx-auto mb-14">
-            Do desbloqueio emocional à ação prática. Cada pilar resolve uma camada.
+      <div className="shell relative grid lg:grid-cols-[1.16fr_0.84fr] gap-14 lg:gap-16 items-center">
+        <div>
+          <p className="eyebrow rise" style={{ animationDelay: "80ms" }}>
+            Neurociência aplicada a negócios
           </p>
-        </R>
 
-        <div className="grid md:grid-cols-2 gap-5">
-          {pillars.map((p, i) => (
-            <R key={i} d={0.14 + i * 0.07}>
-              <div className="glass-card p-6 sm:p-8 h-full relative overflow-hidden group">
-                {p.tag && (
-                  <span className="absolute top-4 right-4 text-[9px] font-bold tracking-wider uppercase bg-gold/10 text-gold px-2.5 py-1 rounded-full border border-gold/20">
-                    {p.tag}
-                  </span>
-                )}
-                {/* Watermark number */}
-                <span className="absolute -right-2 -bottom-4 text-[6rem] font-display font-bold text-white/[0.03] leading-none pointer-events-none select-none">{p.n}</span>
-                <div className="flex items-center gap-4 mb-4">
-                  <span className="text-gold/25 font-display text-3xl font-bold leading-none">{p.n}</span>
-                  <div className="h-[1px] flex-1 bg-gradient-to-r from-gold/10 to-transparent" />
-                </div>
-                <h3 className="text-text-primary font-semibold text-base sm:text-lg mb-2">{p.title}</h3>
-                <p className="text-text-muted text-sm leading-relaxed">{p.desc}</p>
-                {/* Hover line */}
-                <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-gold/0 via-gold/40 to-gold/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          <h1 className="display display-hero mt-7 rise" style={{ animationDelay: "170ms" }}>
+            Você não decide.
+            <br />
+            <span className="gilt">Seu cérebro já decidiu.</span>
+          </h1>
+
+          <p className="lead mt-7 max-w-[520px] rise" style={{ animationDelay: "280ms" }}>
+            Com o seu cliente é igual. O Sinapse Empresarial treina os dois lados da mesma
+            sinapse: a decisão que você toma com dinheiro e a decisão que ele toma na hora de
+            comprar.
+          </p>
+
+          <div
+            className="mt-11 flex flex-wrap items-end gap-x-12 gap-y-7 rise"
+            style={{ animationDelay: "390ms" }}
+          >
+            <div>
+              <p className="meta">Investimento</p>
+              <p className="text-ink-muted line-through text-sm mt-2">R$ {PRECO_CHEIO}</p>
+              <div className="flex items-baseline gap-2.5 mt-0.5">
+                <span className="font-display text-gold text-xl font-semibold leading-none">R$</span>
+                <span className="display gilt text-[3rem] leading-none">{PRECO}</span>
               </div>
-            </R>
-          ))}
-        </div>
+              <p className="meta mt-2.5">Pagamento único · 1 ano de acesso</p>
+            </div>
 
-        <R d={0.45}>
-          <div className="text-center mt-12">
-            <a href="#oferta" className="inline-flex items-center gap-2 text-gold text-sm font-medium hover:text-[#E8D48B] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold">
-              {CTA_TEXT} <Arrow />
+            <a href={KIWIFY} target="_blank" rel="noopener noreferrer" className="cta">
+              {CTA_LABEL} <Arrow />
             </a>
           </div>
-        </R>
+
+          <p className="meta mt-7 rise" style={{ animationDelay: "480ms" }}>
+            Garantia de 7 dias · Pix ou cartão
+          </p>
+        </div>
+
+        <figure className="relative rise mx-auto w-full max-w-[420px]" style={{ animationDelay: "320ms" }}>
+          <div className="relative overflow-hidden rounded-[18px] border border-gold/20">
+            <Image
+              src={retratoTopo}
+              alt="Deyllane Lacerda em atendimento, com celular e tablet nas mãos"
+              priority
+              placeholder="blur"
+              sizes="(max-width: 1024px) 90vw, 420px"
+              className="w-full h-auto"
+            />
+            <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-abyss to-transparent" />
+          </div>
+
+          <figcaption className="absolute left-5 right-5 bottom-5">
+            <Image
+              src="/images/logo-deyllane.png"
+              alt="Deyllane Lacerda — Estrategista de Negócios"
+              width={1000}
+              height={426}
+              className="w-[190px] h-auto"
+            />
+          </figcaption>
+        </figure>
       </div>
     </section>
   );
 }
 
-/* ════════════════════════════════════════════
-   COMPARATIVA — cards empilhados no mobile
-   ════════════════════════════════════════════ */
-function ComparisonSection() {
-  const rows = [
-    { criteria: "Abordagem", others: "Só planilha e corte de gastos", vr: "Comportamento + mente + prática" },
-    { criteria: "Base científica", others: "Opinião e experiência pessoal", vr: "Neurociência + economia comportamental" },
-    { criteria: "Crenças e emoções", others: "Ignoradas ou tratadas como frescura", vr: "Primeiro pilar do método" },
-    { criteria: "Organização", others: "Planilha genérica que você abandona", vr: "Sistema prático adaptado à sua realidade" },
-    { criteria: "Resultado", others: "Saber o que fazer (e não conseguir)", vr: "Pensar, decidir e agir diferente" },
-  ];
+/* ═══════════════ A TESE ═══════════════ */
 
+const SINTOMAS = [
+  {
+    t: "O faturamento sobe, o aperto continua",
+    d: "Entra mais dinheiro do que ano passado e a sensação no fim do mês é exatamente a mesma.",
+  },
+  {
+    t: "Você desconta antes de pedirem",
+    d: "O preço sai da sua boca já menor. A negociação termina antes de começar.",
+  },
+  {
+    t: "A meta está no papel há seis meses",
+    d: "Você sabe qual é o próximo passo. Ele simplesmente não acontece.",
+  },
+];
+
+function Thesis() {
   return (
-    <section className="relative section-pad overflow-hidden scroll-mt-[88px]">
-      <div className="absolute inset-0 bg-gradient-to-b from-bg-base via-bg-sunken to-bg-base" />
-      <div className="divider-lilac absolute top-0 inset-x-0" />
-
-      <div className="relative z-10 section-container max-w-[900px]">
-        <R><Eyebrow lilac>Por que isso é diferente</Eyebrow></R>
-        <R d={0.06}>
-          <h2 className="heading-section text-center mb-12">
-            Não se compara com o que existe no mercado.
+    <section id="tese" className="band">
+      <div className="shell">
+        <Reveal>
+          <p className="eyebrow">O diagnóstico</p>
+          <h2 className="display display-section mt-6 max-w-[620px]">
+            Você já sabe o que fazer.
+            <br />
+            E mesmo assim não faz.
           </h2>
-        </R>
+        </Reveal>
 
-        {/* Desktop table */}
-        <R d={0.12}>
-          <div className="hidden sm:block">
-            <table className="w-full text-sm">
-              <thead>
-                <tr>
-                  <th className="text-left text-text-muted text-[11px] font-semibold tracking-wider uppercase pb-4 pr-4 w-[26%]">Critério</th>
-                  <th className="text-left text-text-muted text-[11px] font-semibold tracking-wider uppercase pb-4 pr-4 w-[37%]">Cursos tradicionais</th>
-                  <th className="text-left text-[11px] font-semibold tracking-wider uppercase pb-4 w-[37%] pl-4"><span className="gold-text">Vida Rica</span></th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((r, i) => (
-                  <tr key={i} className="border-t border-white/[0.04]">
-                    <td className="py-4 pr-4 text-text-secondary font-medium text-[13px]">{r.criteria}</td>
-                    <td className="py-4 pr-4 text-text-muted text-[13px]">
-                      <span className="flex items-center gap-2"><span className="text-red-400/40 text-xs">&#10005;</span> {r.others}</span>
-                    </td>
-                    <td className="py-4 text-[13px] pl-4 bg-gold/[0.03] border-l border-gold/[0.08]">
-                      <span className="flex items-center gap-2 text-text-secondary"><span className="text-gold text-xs">&#10003;</span> {r.vr}</span>
-                    </td>
-                  </tr>
+        <Reveal delay={80}>
+          <p className="lead mt-7 max-w-[600px]">
+            Falta de informação parou de ser o seu problema há muito tempo. O que trava um
+            empreendedor que já fatura não é o que ele ignora — é o que o cérebro dele faz com a
+            informação quando há dinheiro e risco na mesa.
+          </p>
+        </Reveal>
+
+        <div className="grid md:grid-cols-3 gap-4 mt-14">
+          {SINTOMAS.map((s, i) => (
+            <Reveal key={s.t} delay={120 + i * 90}>
+              <article className="panel h-full p-7">
+                <h3 className="display-sm">{s.t}</h3>
+                <p className="mt-3 text-[0.95rem] leading-relaxed text-ink-muted">{s.d}</p>
+              </article>
+            </Reveal>
+          ))}
+        </div>
+
+        <Reveal delay={400}>
+          <p className="lead mt-14 max-w-[640px] text-ink">
+            Nada disso é indisciplina. É a forma como o seu cérebro decide sob incerteza — e ela
+            é treinável.
+          </p>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+/* ═══════════════ A SINAPSE — elemento-assinatura ═══════════════ */
+
+function SynapseDiagram() {
+  return (
+    <svg
+      viewBox="0 0 900 340"
+      className="w-full h-auto scale-[1.28] sm:scale-100 origin-center"
+      role="img"
+      aria-label="Diagrama: as suas decisões e as decisões do cliente ligadas por uma mesma sinapse"
+    >
+      <defs>
+        <linearGradient id="axon" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor="#a97e28" />
+          <stop offset="50%" stopColor="#f7e4b0" />
+          <stop offset="100%" stopColor="#a97e28" />
+        </linearGradient>
+        <radialGradient id="core">
+          <stop offset="0%" stopColor="#fff6df" />
+          <stop offset="55%" stopColor="#e2bc68" />
+          <stop offset="100%" stopColor="#e2bc68" stopOpacity="0" />
+        </radialGradient>
+      </defs>
+
+      <g stroke="url(#axon)" fill="none" strokeWidth="1.7" opacity="0.8" strokeLinecap="round">
+        {/* dendritos — lado de cá */}
+        <path d="M110 92 C170 112 240 122 300 170" />
+        <path d="M92 182 C160 178 240 173 300 170" />
+        <path d="M138 266 C192 242 252 206 300 170" />
+        <path d="M216 128 C250 142 276 155 300 170" />
+        <path d="M198 236 C240 212 272 190 300 170" />
+        {/* dendritos — lado de lá */}
+        <path d="M790 92 C730 112 660 122 600 170" />
+        <path d="M808 182 C740 178 660 173 600 170" />
+        <path d="M762 266 C708 242 648 206 600 170" />
+        <path d="M684 128 C650 142 624 155 600 170" />
+        <path d="M702 236 C660 212 628 190 600 170" />
+      </g>
+
+      {/* axônio: o caminho que o impulso percorre até a fenda e depois dela */}
+      <path d="M300 170 H392" stroke="url(#axon)" strokeWidth="2" fill="none" opacity="0.75" />
+      <path d="M508 170 H600" stroke="url(#axon)" strokeWidth="2" fill="none" opacity="0.75" />
+      <path
+        className="impulse"
+        d="M300 170 H600"
+        stroke="#fff6df"
+        strokeWidth="4"
+        strokeLinecap="round"
+        fill="none"
+      />
+
+      {/* a fenda sináptica — o intervalo onde a decisão acontece */}
+      <circle cx="450" cy="170" r="58" fill="url(#core)" opacity="0.62" />
+      <circle cx="418" cy="170" r="2.4" fill="#f7e4b0" opacity="0.8" />
+      <circle cx="450" cy="158" r="2.8" fill="#f7e4b0" opacity="0.9" />
+      <circle cx="450" cy="183" r="2.2" fill="#f7e4b0" opacity="0.7" />
+      <circle cx="482" cy="170" r="2.4" fill="#f7e4b0" opacity="0.8" />
+
+      {/* nós terminais */}
+      <g fill="#e2bc68">
+        <circle cx="110" cy="92" r="5" />
+        <circle cx="92" cy="182" r="5" />
+        <circle cx="138" cy="266" r="5" />
+        <circle cx="216" cy="128" r="4" />
+        <circle cx="198" cy="236" r="4" />
+        <circle cx="790" cy="92" r="5" />
+        <circle cx="808" cy="182" r="5" />
+        <circle cx="762" cy="266" r="5" />
+        <circle cx="684" cy="128" r="4" />
+        <circle cx="702" cy="236" r="4" />
+      </g>
+
+      {/* hubs */}
+      <circle cx="300" cy="170" r="9" fill="#0f2245" stroke="#e2bc68" strokeWidth="2.4" />
+      <circle cx="600" cy="170" r="9" fill="#0f2245" stroke="#e2bc68" strokeWidth="2.4" />
+      <circle className="node-live" cx="450" cy="170" r="5" fill="#fff6df" />
+    </svg>
+  );
+}
+
+function Synapse() {
+  return (
+    <section className="band relative overflow-hidden">
+      <hr className="hairline absolute inset-x-0 top-0" />
+
+      <div className="shell">
+        <Reveal className="text-center">
+          <p className="eyebrow">O mecanismo</p>
+          <h2 className="display display-section mt-6 mx-auto max-w-[620px]">
+            Duas decisões.
+            <br />
+            <span className="gilt">Um mecanismo.</span>
+          </h2>
+          <p className="lead mt-7 mx-auto max-w-[620px]">
+            Decidir sobre o próprio dinheiro e fazer alguém decidir comprar são o mesmo evento
+            visto de dois lados: um cérebro escolhendo sob incerteza. É por isso que finanças
+            comportamentais e neurovendas não são dois assuntos — são um só.
+          </p>
+        </Reveal>
+
+        <Reveal delay={140} className="mt-14 md:mt-16">
+          <SynapseDiagram />
+        </Reveal>
+
+        <div className="grid sm:grid-cols-2 gap-5 mt-12">
+          <Reveal delay={200}>
+            <div className="panel p-7 h-full">
+              <p className="meta text-gold">Lado de cá</p>
+              <h3 className="display-sm mt-3">A sua decisão</h3>
+              <p className="mt-3 text-[0.95rem] leading-relaxed text-ink-muted">
+                Finanças comportamentais: os vieses que aparecem quando o caixa aperta, o padrão
+                que recria a dívida depois de quitada, a meta que evapora em três semanas.
+              </p>
+            </div>
+          </Reveal>
+
+          <Reveal delay={280}>
+            <div className="panel p-7 h-full">
+              <p className="meta text-gold">Lado de lá</p>
+              <h3 className="display-sm mt-3">A decisão dele</h3>
+              <p className="mt-3 text-[0.95rem] leading-relaxed text-ink-muted">
+                Neurovendas e negociação: como a confiança se forma em segundos, por que a
+                objeção é pedido de segurança, e onde o preço é ancorado antes de ser dito.
+              </p>
+            </div>
+          </Reveal>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ═══════════════ MÉTODO ═══════════════ */
+
+const FRENTES = [
+  {
+    lado: "A sua decisão",
+    itens: [
+      {
+        t: "Decidir sob pressão",
+        d: "Quais vieses assumem o comando quando o caixa aperta — e como interromper o automático antes de assinar.",
+      },
+      {
+        t: "Dívida é sintoma",
+        d: "Sair do vermelho é consequência. O trabalho é no padrão que recria a dívida mesmo depois dela ser quitada.",
+      },
+      {
+        t: "Dinheiro com método",
+        d: "Organização financeira que sobrevive a um mês ruim, sem planilha complicada e sem promessa de disciplina eterna.",
+      },
+    ],
+  },
+  {
+    lado: "A decisão dele",
+    itens: [
+      {
+        t: "O sim antes do argumento",
+        d: "A confiança se forma antes da sua primeira frase técnica. Como construí-la de propósito, não por sorte.",
+      },
+      {
+        t: "Ancoragem e preço",
+        d: "Por que você desconta sozinho e como ancorar valor de um jeito que o desconto deixa de ser o assunto.",
+      },
+      {
+        t: "Objeção e fechamento",
+        d: "Toda objeção é um pedido de segurança. Como responder ao pedido real e fechar sem empurrar.",
+      },
+    ],
+  },
+];
+
+function Method() {
+  return (
+    <section id="metodo" className="band">
+      <hr className="hairline absolute inset-x-0 top-0" />
+      <div className="shell">
+        <Reveal>
+          <p className="eyebrow">O que você domina</p>
+          <h2 className="display display-section mt-6 max-w-[560px]">Seis frentes, um eixo</h2>
+        </Reveal>
+
+        <div className="grid lg:grid-cols-2 gap-x-12 gap-y-12 mt-14">
+          {FRENTES.map((coluna, ci) => (
+            <div key={coluna.lado}>
+              <Reveal delay={ci * 90}>
+                <p className="meta text-gold pb-4 border-b border-gold/15">{coluna.lado}</p>
+              </Reveal>
+
+              <div className="mt-2">
+                {coluna.itens.map((item, i) => (
+                  <Reveal key={item.t} delay={ci * 90 + i * 80}>
+                    <article className="py-7 border-b border-white/[0.06]">
+                      <h3 className="display-sm">{item.t}</h3>
+                      <p className="mt-2.5 text-[0.95rem] leading-relaxed text-ink-muted">{item.d}</p>
+                    </article>
+                  </Reveal>
                 ))}
-              </tbody>
-            </table>
-          </div>
-        </R>
-
-        {/* Mobile cards */}
-        <div className="sm:hidden space-y-3">
-          {rows.map((r, i) => (
-            <R key={i} d={0.1 + i * 0.05}>
-              <div className="glass-card p-4">
-                <p className="text-text-muted text-[10px] font-semibold tracking-wider uppercase mb-2">{r.criteria}</p>
-                <div className="flex items-start gap-2 mb-2 text-text-muted text-[13px]">
-                  <span className="text-red-400/40 text-xs mt-0.5 shrink-0">&#10005;</span>
-                  <p>{r.others}</p>
-                </div>
-                <div className="flex items-start gap-2 text-text-secondary text-[13px] bg-gold/[0.03] rounded-lg p-2 border border-gold/[0.06]">
-                  <span className="text-gold text-xs mt-0.5 shrink-0">&#10003;</span>
-                  <p>{r.vr}</p>
-                </div>
               </div>
-            </R>
+            </div>
+          ))}
+        </div>
+
+        <Reveal delay={200}>
+          <p className="lead mt-14 max-w-[620px]">
+            Tudo em aulas online curtas, para assistir e aplicar na mesma semana. Sem teoria
+            acadêmica solta e sem aula de duas horas que você nunca termina.
+          </p>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+/* ═══════════════ BÔNUS ═══════════════ */
+
+const BONUS = [
+  {
+    t: "Negociação online",
+    d: "Resumo aplicável do que muda quando a negociação acontece por mensagem, sem tom de voz e sem olho no olho.",
+  },
+  {
+    t: "Leitura corporal",
+    d: "O que o corpo entrega antes da fala — e como usar isso para saber a hora exata de avançar ou recuar.",
+  },
+  {
+    t: "Confiança instantânea",
+    d: "Atalhos para entrar no subconsciente do cliente e encurtar o tempo entre a dúvida e a decisão.",
+  },
+  {
+    t: "Mentalidade financeira",
+    d: "E-books autorais sobre a relação com dinheiro que você herdou e nunca parou para questionar.",
+  },
+];
+
+function Bonus() {
+  return (
+    <section id="bonus" className="band relative">
+      <hr className="hairline absolute inset-x-0 top-0" />
+      <div className="shell">
+        <Reveal>
+          <p className="eyebrow">Incluído</p>
+          <h2 className="display display-section mt-6 max-w-[560px]">
+            Quatro materiais de <span className="gilt">consulta rápida</span>
+          </h2>
+          <p className="lead mt-7 max-w-[580px]">
+            Feitos para abrir cinco minutos antes de uma reunião, não para ler no fim de semana.
+          </p>
+        </Reveal>
+
+        <div className="grid sm:grid-cols-2 gap-4 mt-14">
+          {BONUS.map((b, i) => (
+            <Reveal key={b.t} delay={i * 80}>
+              <article className="panel-quiet h-full p-7 flex gap-5">
+                <Image
+                  src="/images/logo-sinapse-mark.png"
+                  alt=""
+                  width={560}
+                  height={400}
+                  className="h-6 w-auto shrink-0 opacity-55 mt-0.5"
+                />
+                <div>
+                  <h3 className="display-sm">{b.t}</h3>
+                  <p className="mt-2.5 text-[0.95rem] leading-relaxed text-ink-muted">{b.d}</p>
+                </div>
+              </article>
+            </Reveal>
           ))}
         </div>
       </div>
@@ -716,511 +700,428 @@ function ComparisonSection() {
   );
 }
 
-/* ════════════════════════════════════════════
-   DEPOIMENTOS (oculto)
-   ════════════════════════════════════════════ */
-function TestimonialsSection() {
-  if (!MOSTRAR_DEPOIMENTOS) return null;
-  return null;
+/* ═══════════════ QUALIFICAÇÃO ═══════════════ */
+
+/* ═══════════════ MENTORA ═══════════════ */
+
+function Mentor() {
+  return (
+    <section className="band relative">
+      <hr className="hairline absolute inset-x-0 top-0" />
+      <div className="shell grid lg:grid-cols-[0.8fr_1.2fr] gap-12 lg:gap-16 items-center">
+        <Reveal>
+          <figure className="relative max-w-[360px] mx-auto lg:mx-0">
+            <div className="relative overflow-hidden rounded-[16px] border border-gold/20">
+              <Image
+                src={retratoMentora}
+                alt="Retrato de Deyllane Lacerda"
+                placeholder="blur"
+                sizes="(max-width: 1024px) 80vw, 360px"
+                className="w-full h-auto"
+              />
+              <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-abyss to-transparent" />
+            </div>
+            <figcaption className="absolute left-5 right-5 bottom-5">
+              <Image
+                src="/images/logo-deyllane.png"
+                alt="Deyllane Lacerda — Estrategista de Negócios"
+                width={1000}
+                height={426}
+                className="w-[175px] h-auto"
+              />
+            </figcaption>
+          </figure>
+        </Reveal>
+
+        <div>
+          <Reveal delay={80}>
+            <p className="eyebrow">Quem conduz</p>
+            <h2 className="display display-section mt-6">Deyllane Lacerda</h2>
+            <p className="meta mt-3">Estrategista de negócios</p>
+          </Reveal>
+
+          <Reveal delay={140}>
+            <p className="lead mt-8 max-w-[560px]">
+              Trabalho a mente do empreendedor porque é lá que a decisão acontece — a sua e a do
+              seu cliente. Junto finanças comportamentais, neurociência e negociação num método
+              que existe para gerar movimento, não para render um certificado.
+            </p>
+            <p className="lead mt-5 max-w-[560px]">
+              Se você está aqui procurando motivação, existem lugares mais baratos. Se está
+              procurando entender por que decide como decide, você está no lugar certo.
+            </p>
+          </Reveal>
+
+          <Reveal delay={200}>
+            <a
+              href={INSTA}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => trackContact("instagram_mentora")}
+              className="cta-ghost mt-8"
+            >
+              @lacerdadeyllane <Arrow />
+            </a>
+          </Reveal>
+        </div>
+      </div>
+    </section>
+  );
 }
 
-/* ════════════════════════════════════════════
-   OFERTA — Entregas absorvidas + Selos + Garantia compactados
-   ════════════════════════════════════════════ */
-function OfferSection() {
-  const included = [
-    "Treinamento Vida Rica completo — 4 pilares integrados",
-    "Todas as aulas em vídeo, acesso por 1 ano",
-    "Material de apoio complementar",
-    "Acesso de qualquer dispositivo",
-    "Garantia legal de 7 dias (art. 49 do CDC)",
-  ];
+/* ═══════════════ OFERTA ═══════════════ */
 
-  // Dispara ViewContent quando a seção de preço entra na tela (uma única vez)
-  const viewSent = useRef(false);
+const INCLUSO = [
+  "Método Sinapse Empresarial completo — as seis frentes",
+  "Aulas online curtas, para assistir e aplicar na mesma semana",
+  "E-books de negociação online, leitura corporal e confiança instantânea",
+  "E-books autorais de mentalidade financeira",
+  "Acesso por 1 ano, de qualquer dispositivo",
+  "Garantia legal de 7 dias (art. 49 do CDC)",
+];
+
+function Offer() {
+  const sent = useRef(false);
 
   useEffect(() => {
-    const h = () => {
-      if (viewSent.current) return;
+    const check = () => {
+      if (sent.current) return;
       const el = document.getElementById("oferta");
       if (!el) return;
       const r = el.getBoundingClientRect();
       if (r.top < window.innerHeight * 0.75 && r.bottom > 0) {
-        viewSent.current = true;
+        sent.current = true;
         trackViewContent();
-        window.removeEventListener("scroll", h);
+        window.removeEventListener("scroll", check);
       }
     };
-    window.addEventListener("scroll", h, { passive: true });
-    h();
-    return () => window.removeEventListener("scroll", h);
+    window.addEventListener("scroll", check, { passive: true });
+    check();
+    return () => window.removeEventListener("scroll", check);
   }, []);
 
   return (
-    <section className="relative section-pad overflow-hidden scroll-mt-[88px]" id="oferta">
-      <div className="absolute inset-0 bg-bg-base" />
-      <div className="divider-gold absolute top-0 inset-x-0" />
-      <div className="glow-gold" style={{ top: "50%", left: "50%", transform: "translate(-50%,-50%)" }} />
+    <section id="oferta" className="band relative overflow-hidden scroll-mt-[72px]">
+      <hr className="hairline absolute inset-x-0 top-0" />
+      <div className="aura w-[720px] h-[720px] left-1/2 -translate-x-1/2 top-[10%]" />
 
-      <div className="relative z-10 section-container max-w-[600px]">
-        <R><Eyebrow>Investimento</Eyebrow></R>
-        <R d={0.06}>
-          <h2 className="heading-section text-center mb-12">
-            Quanto custa transformar sua{" "}
-            <span className="gold-text">relação com o dinheiro?</span>
+      <div className="shell-narrow relative">
+        <Reveal className="text-center">
+          <p className="eyebrow">Investimento</p>
+          <h2 className="display display-section mt-6">
+            Um ano de acesso ao método
           </h2>
-        </R>
+        </Reveal>
 
-        <R d={0.12}>
-          <div className="glass-card p-7 sm:p-10 text-center" style={{ borderColor: "rgba(201,168,76,0.12)" }}>
-            <Image src="/images/logo.png" alt="Vida Rica" width={100} height={36} className="h-7 w-auto mx-auto mb-8 opacity-80" />
+        <Reveal delay={100}>
+          <div className="panel mt-12 p-8 sm:p-11">
+            <Image
+              src="/images/logo-sinapse-wordmark.png"
+              alt="Sinapse Empresarial"
+              width={1000}
+              height={400}
+              className="w-[260px] h-auto mx-auto"
+            />
 
-            <div className="space-y-3 text-left mb-8">
-              {included.map((item, i) => (
-                <div key={i} className="flex items-start gap-3">
-                  <Check />
-                  <p className="text-text-secondary text-sm">{item}</p>
-                </div>
+            <ul className="mt-10 space-y-4">
+              {INCLUSO.map((item) => (
+                <li key={item} className="flex gap-3.5 text-[0.95rem] leading-relaxed text-ink-soft">
+                  <Tick />
+                  <span>{item}</span>
+                </li>
               ))}
-            </div>
+            </ul>
 
-            <div className="divider-gold my-8" />
-
-            {/* Market comparison — subordinate */}
-            <div className="text-left mb-8 opacity-60 hover:opacity-80 transition-opacity">
-              <p className="text-text-muted text-[10px] font-semibold tracking-wider uppercase mb-2">Compare com o mercado</p>
-              <div className="flex justify-between text-[12px] text-text-muted border-b border-white/[0.04] pb-2 mb-1.5">
-                <span>Terapia financeira (1 sessão)</span><span>R$ 200+</span>
+            <div className="mt-11 pt-9 border-t border-white/[0.07] text-center">
+              <p className="text-ink-muted line-through text-sm">R$ {PRECO_CHEIO}</p>
+              <div className="flex items-baseline justify-center gap-3 mt-2">
+                <span className="font-display text-gold text-2xl font-semibold leading-none">R$</span>
+                <span className="display gilt text-[4rem] leading-none -ml-1">{PRECO}</span>
               </div>
-              <div className="flex justify-between text-[12px] text-text-muted border-b border-white/[0.04] pb-2 mb-1.5">
-                <span>Consultoria financeira (1 mês)</span><span>R$ 500+</span>
-              </div>
-              <div className="flex justify-between text-[12px] text-text-muted">
-                <span>Curso presencial de finanças</span><span>R$ 1.200+</span>
-              </div>
-            </div>
+              <p className="meta mt-3">Pagamento único · Acesso por 1 ano</p>
 
-            {/* Price with glow */}
-            <div className="relative">
-              <div className="absolute inset-0 bg-gold/[0.04] rounded-2xl blur-2xl" />
-              <p className="text-text-muted text-xs tracking-[0.15em] uppercase mb-3 relative">Tudo isso por apenas</p>
-              <div className="flex items-center justify-center gap-3 mb-1 relative">
-                <span className="text-text-muted text-lg line-through opacity-50">R$ 297</span>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-gold text-xl font-medium">R$</span>
-                  <span className="font-display text-7xl sm:text-8xl font-bold gold-text leading-none">97</span>
-                </div>
+              <div className="flex justify-center gap-8 mt-7 meta">
+                <span>Pix</span>
+                <span>Cartão</span>
               </div>
-              <div className="flex justify-center mb-2 relative">
-                <span className="text-[10px] font-bold tracking-wider uppercase bg-gold/15 text-gold px-3 py-1 rounded-full border border-gold/20">Economia de R$ 200</span>
-              </div>
-              <p className="text-text-muted text-xs mb-2 relative">Pagamento único &middot; Acesso por 1 ano completo</p>
-              <p className="text-gold-soft text-sm font-medium mb-8 relative">
-                Menos de R$ 0,27 por dia.
-              </p>
-            </div>
 
-            <div className="flex justify-center gap-5 mb-7 text-text-muted text-[11px] tracking-wider">
-              <span>Pix</span>
-              <span className="text-white/10">&middot;</span>
-              <span>Cartão</span>
-              <span className="text-white/10">&middot;</span>
-              <span>Boleto</span>
-            </div>
+              <a
+                href={KIWIFY}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="cta cta-wide mt-8"
+              >
+                {CTA_LABEL} <Arrow />
+              </a>
 
-            <a href={KIWIFY} target="_blank" rel="noopener noreferrer" className="cta-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold">
-              QUERO COMEÇAR AGORA <Arrow />
-            </a>
-
-            <div className="flex items-center justify-center gap-2 mt-5 text-text-muted text-[11px]">
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-              </svg>
-              Compra 100% segura &middot; Plataforma Kiwify
+              <p className="meta mt-6">Compra segura na Kiwify · Acesso imediato</p>
             </div>
           </div>
-        </R>
-      </div>
-    </section>
-  );
-}
+        </Reveal>
 
-/* ════════════════════════════════════════════
-   SELOS + GARANTIA — compactados em uma seção
-   ════════════════════════════════════════════ */
-function TrustAndGuaranteeSection() {
-  return (
-    <section className="relative py-16 sm:py-24 overflow-hidden scroll-mt-[88px]">
-      <div className="absolute inset-0 bg-gradient-to-b from-bg-base via-bg-sunken to-bg-base" />
-      <div className="divider-gold absolute top-0 inset-x-0" />
-
-      <div className="relative z-10 section-container max-w-[800px]">
-        {/* Trust badges — compact strip */}
-        <R>
-          <div className="grid grid-cols-3 gap-3 sm:gap-5 mb-12">
-            {[
-              { title: "Compra segura", desc: "Plataforma Kiwify" },
-              { title: "Acesso imediato", desc: "Pix ou cartão" },
-              { title: "Garantia 7 dias", desc: "Art. 49 do CDC" },
-            ].map((b, i) => (
-              <div key={i} className="text-center py-4 sm:py-5">
-                <p className="text-text-primary text-xs sm:text-sm font-semibold mb-1">{b.title}</p>
-                <p className="text-text-muted text-[11px]">{b.desc}</p>
-              </div>
-            ))}
-          </div>
-        </R>
-
-        {/* Guarantee block */}
-        <R d={0.08}>
-          <div className="gold-border-card p-6 sm:p-8">
-            <h3 className="font-display text-xl sm:text-2xl font-bold text-text-primary mb-4 text-center">
-              Garantia legal de 7 dias
-            </h3>
-            <div className="max-w-[580px] mx-auto space-y-3 text-text-muted text-[13px] leading-relaxed">
-              <p>
-                Conforme o <strong className="text-text-secondary font-medium">art. 49 do Código de Defesa do Consumidor</strong>, você tem 7 dias corridos a partir da data da compra para solicitar o reembolso integral, sem necessidade de justificativa.
-              </p>
-              <p>
-                Para exercer esse direito, basta entrar em contato pelo e-mail ou WhatsApp informados nesta página dentro do prazo de 7 dias. O reembolso será processado pela plataforma Kiwify.
-              </p>
-              <p>
-                Conforme o <strong className="text-text-secondary font-medium">art. 46 do CDC</strong>, todas as condições desta oferta estão descritas de forma clara nesta página. Você sabe exatamente o que está adquirindo antes de comprar.
+        <Reveal delay={180}>
+          <div className="panel mt-5 p-8 flex flex-col sm:flex-row items-center gap-6 text-center sm:text-left">
+            <div className="grid place-items-center w-[68px] h-[68px] shrink-0 rounded-full border border-gold/30 bg-gold/[0.07]">
+              <Shield />
+            </div>
+            <div>
+              <p className="display-sm gilt">Garantia de 7 dias</p>
+              <p className="mt-2.5 text-[0.95rem] leading-relaxed text-ink-soft">
+                Entre, assista, aplique. Se concluir que não é para você, peça o reembolso em até
+                7 dias e recebe o valor integral de volta. O risco é meu.
               </p>
             </div>
           </div>
-        </R>
+        </Reveal>
       </div>
     </section>
   );
 }
 
-/* ════════════════════════════════════════════
-   QUALIFICAÇÃO
-   ════════════════════════════════════════════ */
-function QualificationSection() {
-  const yes = [
-    "Quer entender POR QUE repete os mesmos erros financeiros",
-    "Está disposta a olhar para dentro antes de olhar para a planilha",
-    "Quer sair do ciclo de culpa e ansiedade com dinheiro",
-    "Busca uma transformação real, não uma receita mágica",
-    "Quer construir uma relação saudável com dinheiro para a vida toda",
-  ];
-  const no = [
-    "Busca fórmula de dinheiro fácil ou rápido",
-    "Não está disposta a questionar crenças e hábitos antigos",
-    "Quer apenas mais uma planilha ou app de controle",
-    "Não vai dedicar tempo para assistir e aplicar o conteúdo",
-    "Prefere terceirizar responsabilidade em vez de assumir o controle",
-  ];
+/* ═══════════════ PERGUNTAS ═══════════════ */
 
-  return (
-    <section className="relative section-pad overflow-hidden scroll-mt-[88px]">
-      <div className="absolute inset-0 bg-bg-base" />
-      <div className="divider-gold absolute top-0 inset-x-0" />
+const FAQ = [
+  {
+    q: "Isso é um curso de finanças ou de vendas?",
+    a: "De decisão. Metade trata das suas escolhas com dinheiro; metade, das escolhas de compra do seu cliente. O mecanismo é o mesmo nos dois lados.",
+  },
+  {
+    q: "Serve para quem está endividado?",
+    a: "Serve, mas sair da dívida aqui é consequência, não objetivo. Se o seu único problema hoje é renegociar parcelas, existe conteúdo gratuito mais direto para isso.",
+  },
+  {
+    q: "Preciso saber alguma coisa de neurociência?",
+    a: "Não. A neurociência sustenta o método, não o vocabulário das aulas. Você recebe o mecanismo e o que fazer com ele.",
+  },
+  {
+    q: "Tenho pouco tempo. Como funciona na prática?",
+    a: "Aulas curtas, no seu ritmo, de qualquer dispositivo. Feitas para caber entre compromissos: assistir hoje, aplicar esta semana.",
+  },
+  {
+    q: "Por quanto tempo fica disponível?",
+    a: "Um ano a partir da compra, e-books incluídos.",
+  },
+  {
+    q: "E se não for para mim?",
+    a: "Sete dias de garantia. Pede o reembolso e recebe tudo de volta, sem justificar.",
+  },
+];
 
-      <div className="relative z-10 section-container max-w-[960px]">
-        <R><Eyebrow>Esse método é para você?</Eyebrow></R>
-        <R d={0.06}>
-          <h2 className="heading-section text-center mb-12">
-            O Vida Rica não é para todo mundo.
-          </h2>
-        </R>
-
-        <div className="grid md:grid-cols-2 gap-5">
-          <R d={0.12}>
-            <div className="qual-yes p-6 sm:p-7 h-full">
-              <p className="text-gold text-xs font-bold tracking-[0.2em] uppercase mb-5">&#10003; É para você se</p>
-              <div className="space-y-4">
-                {yes.map((item, i) => (
-                  <div key={i} className="flex items-start gap-3">
-                    <Check />
-                    <p className="text-text-secondary text-sm leading-relaxed">{item}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </R>
-
-          <R d={0.18}>
-            <div className="qual-no p-6 sm:p-7 h-full">
-              <p className="text-text-muted text-xs font-bold tracking-[0.2em] uppercase mb-5">&#10005; Não é para você se</p>
-              <div className="space-y-4">
-                {no.map((item, i) => (
-                  <div key={i} className="flex items-start gap-3">
-                    <div className="shrink-0 w-5 h-5 rounded-full bg-white/[0.04] flex items-center justify-center mt-0.5">
-                      <span className="text-text-muted text-[10px]">&#10005;</span>
-                    </div>
-                    <p className="text-text-muted text-sm leading-relaxed">{item}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </R>
-        </div>
-
-        <R d={0.24}>
-          <p className="text-center text-text-secondary text-base mt-10 font-display italic">
-            Se você se identificou com a coluna da esquerda — esse treinamento foi feito para você.
-          </p>
-        </R>
-      </div>
-    </section>
-  );
-}
-
-/* ════════════════════════════════════════════
-   DADOS DE MERCADO (oculto)
-   ════════════════════════════════════════════ */
-function MarketDataSection() {
-  if (!MOSTRAR_ESTATISTICAS) return null;
-
-  const stats = [
-    { number: "78%", label: "das famílias brasileiras terminam o mês sem sobrar dinheiro", source: "SPC Brasil / CNDL" },
-    { number: "67M+", label: "de brasileiros estão endividados atualmente", source: "Serasa Experian" },
-    { number: "58%", label: "dos brasileiros não fazem nenhum tipo de controle financeiro", source: "SPC Brasil" },
-    { number: "48%", label: "das pessoas gastam mais do que ganham por impulso emocional", source: "CNDL / SPC Brasil" },
-  ];
-
-  return (
-    <section className="relative section-pad overflow-hidden scroll-mt-[88px]">
-      <div className="absolute inset-0 bg-gradient-to-b from-bg-base via-bg-sunken to-bg-base" />
-      <div className="divider-gold absolute top-0 inset-x-0" />
-      <div className="relative z-10 section-container max-w-[1100px]">
-        <R><Eyebrow>O cenário real</Eyebrow></R>
-        <R d={0.06}>
-          <h2 className="heading-section text-center mb-14">
-            O movimento já está acontecendo.{" "}
-            <span className="gold-text">O risco é ficar de fora.</span>
-          </h2>
-        </R>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {stats.map((s, i) => (
-            <R key={i} d={0.12 + i * 0.06}>
-              <div className="glass-card p-6 text-center h-full">
-                <p className="font-display text-4xl sm:text-5xl font-bold gold-text mb-3">{s.number}</p>
-                <p className="text-text-secondary text-sm leading-relaxed mb-3">{s.label}</p>
-                <p className="text-text-muted text-[10px] tracking-wider uppercase">Fonte: {s.source}</p>
-              </div>
-            </R>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ════════════════════════════════════════════
-   FAQ
-   ════════════════════════════════════════════ */
-function FaqItem({ q, a }: { q: string; a: string }) {
+function FaqItem({ q, a, id }: { q: string; a: string; id: string }) {
   const [open, setOpen] = useState(false);
+
   return (
-    <div className={`border-b border-white/[0.05] transition-colors duration-300 ${open ? "bg-white/[0.015] -mx-4 px-4 rounded-xl border-transparent" : ""}`}>
-      <button onClick={() => setOpen(!open)} className="w-full flex items-center justify-between py-5 sm:py-6 text-left cursor-pointer group focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold">
-        <span className="text-text-secondary text-sm sm:text-[15px] pr-6 group-hover:text-text-primary transition-colors duration-300 font-medium">{q}</span>
-        <motion.span
-          animate={{ rotate: open ? 45 : 0 }}
-          transition={{ duration: 0.2 }}
-          className="text-gold text-xl shrink-0 leading-none font-light"
+    <div className="border-b border-white/[0.07]">
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        aria-expanded={open}
+        aria-controls={id}
+        className="w-full flex items-start justify-between gap-6 py-6 min-h-[64px] text-left cursor-pointer group"
+      >
+        <span className="display-sm normal-case font-medium text-[1rem] group-hover:text-gold transition-colors duration-200">
+          {q}
+        </span>
+        <span
+          className={`shrink-0 mt-1 text-gold transition-transform duration-300 ${open ? "rotate-45" : ""}`}
+          aria-hidden
         >
-          +
-        </motion.span>
+          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M12 5v14M5 12h14" strokeWidth={1.6} strokeLinecap="round" />
+          </svg>
+        </span>
       </button>
-      <AnimatePresence>
-        {open && (
-          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.3, ease: EASE }} className="overflow-hidden">
-            <p className="text-text-muted text-sm leading-relaxed pb-5 sm:pb-6 pr-10">{a}</p>
-          </motion.div>
-        )}
-      </AnimatePresence>
+
+      <div
+        id={id}
+        role="region"
+        className="grid transition-[grid-template-rows] duration-300 ease-out"
+        style={{ gridTemplateRows: open ? "1fr" : "0fr" }}
+      >
+        <div className="overflow-hidden">
+          <p className="pb-6 pr-10 text-[0.95rem] leading-relaxed text-ink-muted">{a}</p>
+        </div>
+      </div>
     </div>
   );
 }
 
-function FaqSection() {
-  const faqs = [
-    { q: "Preciso entender de finanças para fazer o treinamento?", a: "Não. O Vida Rica foi criado para pessoas comuns, sem termos complicados. A linguagem é simples, prática e direta. Se você sabe o que é uma conta de luz, sabe o suficiente para começar." },
-    { q: "Já fiz outros cursos de finanças e não funcionou. Por que esse seria diferente?", a: "Porque outros cursos focam em planilha e números. O Vida Rica começa pelo comportamento — a raiz do problema. Não adianta saber COMO organizar se você não entende POR QUE desorganiza." },
-    { q: "Estou endividada. Isso serve pra mim?", a: "Especialmente para você. O treinamento te ajuda a entender os comportamentos que criaram as dívidas — e te dá o caminho para sair desse ciclo sem culpa e com estratégia." },
-    { q: "Não tenho tempo. Consigo acompanhar?", a: "As aulas são curtas e você assiste no seu ritmo, de qualquer dispositivo. Com 20 minutos por dia você consegue avançar. E o acesso é por 1 ano inteiro." },
-    { q: "E se não funcionar pra mim?", a: "Você tem 7 dias de garantia conforme o art. 49 do Código de Defesa do Consumidor. Se dentro desse prazo você decidir que não é para você, solicite o reembolso integral pelo e-mail ou WhatsApp." },
-    { q: "É só mais um curso motivacional sobre dinheiro?", a: "Não. O Vida Rica é baseado em ciência — finanças comportamentais, neurociência e economia. É sobre entender como seu cérebro toma decisões financeiras e reprogramar padrões reais." },
-    { q: "Por quanto tempo tenho acesso ao conteúdo?", a: "Você terá 1 ano de acesso completo a todas as aulas e materiais, a partir do momento da compra." },
-    { q: "Quais as formas de pagamento?", a: "Pix (acesso imediato), cartão de crédito (acesso imediato) e boleto bancário (acesso após compensação, geralmente 1-2 dias úteis)." },
-  ];
-
+function Faq() {
   return (
-    <section className="relative section-pad overflow-hidden scroll-mt-[88px]" id="duvidas">
-      <div className="absolute inset-0 bg-gradient-to-b from-bg-base via-bg-sunken to-bg-base" />
-      <div className="divider-gold absolute top-0 inset-x-0" />
+    <section className="band relative">
+      <hr className="hairline absolute inset-x-0 top-0" />
+      <div className="shell-narrow">
+        <Reveal>
+          <p className="eyebrow">Perguntas</p>
+          <h2 className="display display-section mt-6">Antes que você pergunte</h2>
+        </Reveal>
 
-      <div className="relative z-10 section-container max-w-[680px]">
-        <R><Eyebrow>Dúvidas frequentes</Eyebrow></R>
-        <R d={0.06}>
-          <h2 className="heading-section text-center mb-12">
-            Ainda tem alguma dúvida?
-          </h2>
-        </R>
-
-        <div>
-          {faqs.map((f, i) => (
-            <R key={i} d={0.08 + i * 0.02}>
-              <FaqItem q={f.q} a={f.a} />
-            </R>
+        <div className="mt-12">
+          {FAQ.map((item, i) => (
+            <Reveal key={item.q} delay={i * 50}>
+              <FaqItem q={item.q} a={item.a} id={`faq-${i}`} />
+            </Reveal>
           ))}
         </div>
 
-        <R d={0.3}>
-          <div className="text-center mt-10 space-y-5">
-            <a href={KIWIFY} target="_blank" rel="noopener noreferrer" className="cta-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold">
-              {CTA_TEXT} <Arrow />
+        <Reveal delay={300}>
+          <div className="mt-12 text-center">
+            <a
+              href={WA_LINK}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => trackContact("whatsapp_faq")}
+              className="cta-ghost"
+            >
+              Ficou outra dúvida? Fale comigo no WhatsApp <Arrow />
             </a>
-            <div>
-              <a href={WA_LINK} onClick={() => trackContact("whatsapp_faq")} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-text-muted hover:text-green-400 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-400">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" /></svg>
-                Ou fale diretamente pelo WhatsApp
-              </a>
-            </div>
           </div>
-        </R>
+        </Reveal>
       </div>
     </section>
   );
 }
 
-/* ════════════════════════════════════════════
-   BIFURCAÇÃO FINAL
-   ════════════════════════════════════════════ */
-function BifurcationSection() {
+/* ═══════════════ FECHAMENTO ═══════════════ */
+
+function Close() {
   return (
-    <section className="relative py-24 sm:py-32 overflow-hidden scroll-mt-[88px]">
-      <div className="absolute inset-0 bg-gradient-to-t from-bg-base via-bg-elevated/30 to-bg-base" />
-      <div className="glow-gold" style={{ top: "50%", left: "50%", transform: "translate(-50%,-50%)" }} />
-      <div className="divider-gold absolute top-0 inset-x-0" />
+    <section className="band relative overflow-hidden">
+      <hr className="hairline absolute inset-x-0 top-0" />
+      <div className="aura w-[600px] h-[600px] left-1/2 -translate-x-1/2 -top-[100px] opacity-70" />
 
-      <div className="relative z-10 section-container max-w-[960px]">
-        <R>
-          <h2 className="font-display text-[clamp(1.6rem,4.5vw,3rem)] font-bold text-center mb-4 leading-[1.1] text-text-primary">
-            Daqui a um ano, você vai desejar ter{" "}
-            <span className="gold-text">começado hoje.</span>
+      <div className="shell-narrow relative text-center">
+        <Reveal>
+          <Image
+            src="/images/logo-sinapse-mark.png"
+            alt=""
+            width={560}
+            height={400}
+            className="h-12 w-auto mx-auto opacity-90"
+          />
+          <h2 className="display display-section mt-9">
+            Daqui a um ano você decide
+            <br />
+            <span className="gilt">do mesmo jeito?</span>
           </h2>
-        </R>
-        <R d={0.06}>
-          <p className="text-text-muted text-center text-base sm:text-lg mb-12 max-w-md mx-auto">
-            Você tem duas opções agora. Nenhuma é neutra.
+          <p className="lead mt-7 mx-auto max-w-[560px]">
+            Seu faturamento pode crescer sem que nada mude na forma como você decide. É assim que
+            um negócio maior vira só um problema maior. O método existe para quebrar esse ciclo —
+            e começa com uma decisão sua, agora.
           </p>
-        </R>
+        </Reveal>
 
-        <div className="grid md:grid-cols-2 gap-5 mb-12">
-          <R d={0.12}>
-            <div className="qual-no p-6 sm:p-7 h-full">
-              <p className="text-text-muted text-xs font-bold tracking-[0.2em] uppercase mb-4">Opção 1 — Fechar esta página</p>
-              <div className="space-y-3 text-text-muted text-sm leading-relaxed">
-                <p>Continuar fazendo o que sempre fez.</p>
-                <p>Daqui a 12 meses, o dinheiro ainda vai sumir sem explicação.</p>
-                <p>A culpa, a vergonha e a ansiedade continuam no mesmo lugar.</p>
-                <p className="italic opacity-60">Nada muda se nada muda.</p>
-              </div>
-            </div>
-          </R>
-
-          <R d={0.18}>
-            <div className="gold-border-card p-6 sm:p-7 h-full">
-              <p className="text-gold text-xs font-bold tracking-[0.2em] uppercase mb-4">Opção 2 — Entrar no Vida Rica</p>
-              <div className="space-y-3 text-text-secondary text-sm leading-relaxed">
-                <p>Entender de verdade por que você age assim com dinheiro.</p>
-                <p>Quebrar os padrões que se repetem há anos — talvez há gerações.</p>
-                <p>Daqui a 12 meses, olhar para trás e não se reconhecer.</p>
-                <p className="font-medium text-text-primary">Uma decisão. Um clique. Uma vida diferente.</p>
-              </div>
-            </div>
-          </R>
-        </div>
-
-        <R d={0.24}>
-          <div className="text-center">
-            <a href={KIWIFY} target="_blank" rel="noopener noreferrer" className="cta-primary text-[15px] px-10 py-5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold">
-              QUERO COMEÇAR AGORA <Arrow />
-            </a>
-            <p className="text-text-muted text-xs mt-5">
-              R$ 97,00 &middot; Acesso imediato &middot; Garantia de 7 dias &middot; 1 ano de conteúdo
-            </p>
-          </div>
-        </R>
+        <Reveal delay={120}>
+          <a href={KIWIFY} target="_blank" rel="noopener noreferrer" className="cta mt-10">
+            {CTA_LABEL} <Arrow />
+          </a>
+          <p className="meta mt-6">
+            R$ {PRECO} · 1 ano de acesso · Garantia de 7 dias
+          </p>
+        </Reveal>
       </div>
     </section>
   );
 }
 
-/* ════════════════════════════════════════════
-   FOOTER
-   ════════════════════════════════════════════ */
+/* ═══════════════ RODAPÉ ═══════════════ */
+
 function Footer() {
   return (
-    <footer className="relative py-14 border-t border-white/[0.04]">
-      <div className="section-container">
-        <div className="flex flex-col items-center text-center">
-          <Image src="/images/logo.png" alt="Vida Rica" width={110} height={40} className="h-8 w-auto mb-6 opacity-70" />
+    <footer className="relative pt-16 pb-16">
+      <hr className="hairline absolute inset-x-0 top-0" />
+      <div className="shell text-center">
+        <Image
+          src="/images/logo-sinapse-wordmark.png"
+          alt="Sinapse Empresarial"
+          width={1000}
+          height={400}
+          className="w-[230px] h-auto mx-auto opacity-80"
+        />
+        <p className="meta mt-4">O método que conecta comportamento, dinheiro e vendas</p>
 
-          <p className="text-text-muted text-xs mb-5">
-            Deyllane Lacerda &middot; Economista &middot; Contadora &middot; Especialista em Finanças Comportamentais
-          </p>
-
-          <div className="flex flex-wrap justify-center gap-x-6 gap-y-3 mb-6 text-text-muted text-xs">
-            <a href={INSTA} onClick={() => trackContact("instagram_rodape")} target="_blank" rel="noopener noreferrer" className="hover:text-lilac transition-colors flex items-center gap-1.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold">
-              <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" /></svg>
-              @lacerdadeyllane
-            </a>
-            <a href={WA_LINK} onClick={() => trackContact("whatsapp_rodape")} target="_blank" rel="noopener noreferrer" className="hover:text-green-400 transition-colors flex items-center gap-1.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold">
-              <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" /></svg>
-              (98) 98567-9867
-            </a>
-            <a href="mailto:dey.lacerda82@gmail.com" onClick={() => trackContact("email_rodape")} className="hover:text-gold transition-colors flex items-center gap-1.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold">
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
-              dey.lacerda82@gmail.com
-            </a>
-          </div>
-
-          <div className="divider-gold w-full mb-6" />
-
-          <div className="max-w-2xl text-center mb-4">
-            <p className="text-text-muted/60 text-[10px] leading-relaxed">
-              <strong className="text-text-muted/80">Aviso legal:</strong> Os resultados apresentados nesta página são ilustrativos e podem variar de pessoa para pessoa. O treinamento Vida Rica oferece conhecimento e ferramentas, mas os resultados dependem da dedicação e aplicação individual de cada aluno. Este produto não garante resultados financeiros específicos. Ao adquirir, você concorda com os termos de uso da plataforma Kiwify.
-            </p>
-          </div>
-
-          <p className="text-text-muted/30 text-[11px]">
-            &copy; {new Date().getFullYear()} Vida Rica. Todos os direitos reservados.
-          </p>
+        <div className="flex flex-wrap justify-center gap-x-7 gap-y-3 mt-9 text-[0.85rem] text-ink-muted">
+          <a
+            href={INSTA}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => trackContact("instagram_rodape")}
+            className="inline-flex items-center min-h-[44px] px-1 hover:text-gold transition-colors"
+          >
+            @lacerdadeyllane
+          </a>
+          <a
+            href={WA_LINK}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => trackContact("whatsapp_rodape")}
+            className="inline-flex items-center min-h-[44px] px-1 hover:text-gold transition-colors"
+          >
+            (98) 98567-9867
+          </a>
+          <a
+            href={`mailto:${EMAIL}`}
+            onClick={() => trackContact("email_rodape")}
+            className="inline-flex items-center min-h-[44px] px-1 hover:text-gold transition-colors"
+          >
+            {EMAIL}
+          </a>
         </div>
+
+        <p className="meta mt-9 normal-case tracking-normal max-w-[620px] mx-auto leading-relaxed">
+          Conteúdo educacional. Não é consultoria de investimentos e não promete retorno
+          financeiro — o resultado depende da aplicação de cada pessoa.
+        </p>
+
+        <p className="meta mt-6">
+          © {new Date().getFullYear()} Deyllane Lacerda · Todos os direitos reservados
+        </p>
       </div>
     </footer>
   );
 }
 
-/* ════════════════════════════════════════════
-   PAGE
-   ════════════════════════════════════════════ */
+/* ═══════════════ WHATSAPP FLUTUANTE ═══════════════ */
+
+function WhatsAppFab() {
+  return (
+    <a
+      href={WA_LINK}
+      target="_blank"
+      rel="noopener noreferrer"
+      onClick={() => trackContact("whatsapp_flutuante")}
+      aria-label="Falar com Deyllane no WhatsApp"
+      className="wa-fab"
+    >
+      <svg className="w-7 h-7" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+        <path d="M17.5 14.4c-.3-.2-1.8-.9-2-1-.3-.1-.5-.2-.7.2s-.8 1-.9 1.2c-.2.2-.3.2-.6.1-.3-.2-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6l.5-.5c.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5 0-.2-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.5s1.1 2.9 1.2 3.1c.2.2 2.1 3.2 5.1 4.5.7.3 1.3.5 1.7.6.7.2 1.4.2 1.9.1.6-.1 1.8-.7 2-1.4.2-.7.2-1.3.2-1.4-.1-.1-.3-.2-.6-.3M12 21.8h-.1c-1.8 0-3.5-.5-5-1.4l-.4-.2-3.7 1 1-3.7-.2-.4A9.9 9.9 0 0 1 2.1 12C2.1 6.5 6.6 2.1 12 2.1c2.7 0 5.2 1 7 2.9a9.8 9.8 0 0 1 2.9 7c0 5.4-4.4 9.8-9.9 9.8M20.5 3.5A11.8 11.8 0 0 0 12 0C5.5 0 .2 5.3.2 11.9c0 2.1.5 4.1 1.6 5.9L0 24l6.3-1.7c1.7 1 3.7 1.4 5.7 1.4 6.5 0 11.9-5.3 11.9-11.9 0-3.2-1.2-6.2-3.4-8.4" />
+      </svg>
+    </a>
+  );
+}
+
+/* ═══════════════ PÁGINA ═══════════════ */
+
 export default function Home() {
   return (
-    <main className="bg-bg-base pb-20 lg:pb-0">
+    <>
+      <a href="#conteudo" className="skip-link">
+        Pular para o conteúdo
+      </a>
       <Header />
-      <Hero />
-      <PainSection />
-      <SegmentationSection />
-      <MentorSection />
-      <MethodSection />
-      <ComparisonSection />
-      <TestimonialsSection />
-      <OfferSection />
-      <TrustAndGuaranteeSection />
-      <QualificationSection />
-      <MarketDataSection />
-      <FaqSection />
-      <BifurcationSection />
+      <main id="conteudo">
+        <Hero />
+        <Thesis />
+        <Synapse />
+        <Method />
+        <Bonus />
+        <Mentor />
+        <Offer />
+        <Faq />
+        <Close />
+      </main>
       <Footer />
-      <MobileCta />
-    </main>
+      <WhatsAppFab />
+    </>
   );
 }

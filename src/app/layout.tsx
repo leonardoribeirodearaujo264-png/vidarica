@@ -3,26 +3,34 @@ import "./globals.css";
 import MetaPixel from "@/components/MetaPixel";
 
 export const metadata: Metadata = {
-  title: "Vida Rica | Transforme sua relação com o dinheiro",
+  metadataBase: new URL("https://vidarica.vercel.app"),
+  title: "Sinapse Empresarial | Neurociência aplicada a negócios",
   description:
-    "Treinamento online de finanças comportamentais e mentalidade financeira com Deyllane Lacerda. Transforme seus padrões financeiros e construa uma vida próspera.",
+    "Método de Deyllane Lacerda que conecta comportamento, dinheiro e vendas. Finanças comportamentais para as suas decisões e neurovendas para as decisões do seu cliente.",
   keywords: [
+    "neurociência aplicada a negócios",
     "finanças comportamentais",
+    "neurovendas",
+    "negociação",
     "mentalidade financeira",
-    "educação financeira",
-    "vida rica",
+    "Sinapse Empresarial",
     "Deyllane Lacerda",
-    "prosperidade",
-    "dinheiro",
-    "inteligência financeira",
+    "decisão empresarial",
   ],
   openGraph: {
-    title: "Vida Rica | Transforme sua relação com o dinheiro",
+    title: "Sinapse Empresarial | O cérebro decide antes de você",
     description:
-      "Treinamento online de finanças comportamentais e mentalidade financeira. Sua Vida Rica começa na mente.",
+      "O mesmo mecanismo que faz você adiar uma decisão de dinheiro é o que faz seu cliente adiar o sim. Os dois lados da mesma sinapse.",
     type: "website",
     locale: "pt_BR",
-    images: ["/images/logo.png"],
+    images: [{ url: "/og.png", width: 1200, height: 630, alt: "Sinapse Empresarial" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Sinapse Empresarial | O cérebro decide antes de você",
+    description:
+      "Neurociência aplicada a negócios: as suas decisões financeiras e as decisões de compra do seu cliente.",
+    images: ["/og.png"],
   },
   robots: { index: true, follow: true },
 };

@@ -28,9 +28,10 @@ export function isMetaEventName(value: unknown): value is MetaEventName {
 /** Dados reais do produto — os mesmos valores exibidos na pagina de oferta. */
 export const PRODUCT = {
   content_type: "product",
-  content_ids: ["vida-rica"],
+  content_ids: ["sinapse-empresarial"],
+  content_name: "Sinapse Empresarial",
   currency: "BRL",
-  value: 97,
+  value: 197,
 } as const;
 
 export type MetaCustomData = Record<string, unknown>;
