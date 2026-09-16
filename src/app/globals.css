@@ -3,27 +3,34 @@
 
 /* ══════════════════════════════════════════════════════════════════
    SINAPSE EMPRESARIAL — sistema visual
-   Navy e ouro vêm direto do logo. Nada de terceira cor: a hierarquia
-   é feita com peso, escala e opacidade.
+
+   Três cores, cada uma com função: marinho profundo é o fundo,
+   azul-petróleo é o lado do cliente, dourado suave é o seu lado.
+   A divisão cromática não é enfeite — é a tese do produto.
    ══════════════════════════════════════════════════════════════════ */
 
 @theme {
-  /* Superfícies — o navy do logo, aprofundado para dar camada */
-  --color-abyss: #0b1a38;
-  --color-deep: #0f2245;
-  --color-surface: #143056;
-  --color-raised: #1a3b68;
+  /* Marinho — profundidade */
+  --color-abyss: #050f22;
+  --color-navy: #0a1c3c;
+  --color-surface: #0e2247;
+  --color-raised: #14305e;
 
-  /* Ouro — amostrado do próprio logo */
-  --color-gold: #e2bc68;
-  --color-gold-bright: #f7e4b0;
-  --color-gold-deep: #a97e28;
+  /* Petróleo — o lado do cliente */
+  --color-petrol: #0d3946;
+  --color-petrol-lit: #1a6b7d;
+  --color-petrol-soft: #5cb0c2;
 
-  /* Tinta — branco levemente frio, para casar com o navy */
-  --color-ink: #eef3fc;
-  --color-ink-soft: rgba(238, 243, 252, 0.76);
-  --color-ink-muted: rgba(238, 243, 252, 0.56);
-  --color-ink-faint: rgba(238, 243, 252, 0.44);
+  /* Dourado suave — o seu lado */
+  --color-gold: #d8bd88;
+  --color-gold-bright: #f2e3be;
+  --color-gold-deep: #a2803b;
+
+  /* Tinta */
+  --color-ink: #edf2fa;
+  --color-ink-soft: rgba(237, 242, 250, 0.78);
+  --color-ink-muted: rgba(237, 242, 250, 0.6);
+  --color-ink-faint: rgba(237, 242, 250, 0.44);
 
   --font-display: 'Cinzel', Georgia, serif;
   --font-body: 'Archivo', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
@@ -36,8 +43,26 @@
     overflow-x: hidden;
   }
 
+  /* O cabeçalho é fixo: sem esta folga, o título de cada seção some
+     atrás dele quando o menu leva até a âncora. */
+  :target,
+  section[id] {
+    scroll-margin-top: 84px;
+  }
+
+  a,
+  button {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(216, 189, 136, 0.18);
+  }
+
   body {
-    background: var(--color-abyss);
+    /* Luz entrando pelo alto e um rastro de petróleo atravessando o meio */
+    background:
+      radial-gradient(90rem 50rem at 50% -14rem, rgba(26, 107, 125, 0.2), transparent 62%),
+      radial-gradient(70rem 44rem at 88% 44%, rgba(13, 57, 70, 0.3), transparent 66%),
+      linear-gradient(180deg, #0a1c3c 0%, #050f22 32%, #050f22 100%);
+    background-attachment: fixed;
     color: var(--color-ink-soft);
     font-family: var(--font-body);
     font-weight: 400;
@@ -47,27 +72,27 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Grão finíssimo: tira o aspecto de gradiente digital do navy */
+  /* Grão finíssimo: tira o aspecto de degradê digital */
   body::after {
     content: '';
     position: fixed;
     inset: 0;
     z-index: 100;
     pointer-events: none;
-    opacity: 0.035;
+    opacity: 0.03;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
     background-size: 220px 220px;
   }
 
   ::selection {
-    background: rgba(226, 188, 104, 0.3);
+    background: rgba(216, 189, 136, 0.32);
     color: #fff;
   }
 
   ::-webkit-scrollbar { width: 6px }
   ::-webkit-scrollbar-track { background: var(--color-abyss) }
-  ::-webkit-scrollbar-thumb { background: #22406e; border-radius: 3px }
-  ::-webkit-scrollbar-thumb:hover { background: #2d5390 }
+  ::-webkit-scrollbar-thumb { background: #1d3a63; border-radius: 3px }
+  ::-webkit-scrollbar-thumb:hover { background: #2a5390 }
 
   :focus-visible {
     outline: 2px solid var(--color-gold);
@@ -90,6 +115,8 @@
   /* ─────────────── estrutura ─────────────── */
 
   .shell {
+    position: relative;
+    z-index: 1;
     width: 100%;
     max-width: 1240px;
     margin-inline: auto;
@@ -98,8 +125,10 @@
   @media (min-width: 768px) { .shell { padding-inline: 40px } }
 
   .shell-narrow {
+    position: relative;
+    z-index: 1;
     width: 100%;
-    max-width: 780px;
+    max-width: 800px;
     margin-inline: auto;
     padding-inline: 20px;
   }
@@ -107,21 +136,37 @@
 
   .band {
     position: relative;
-    padding-block: 88px;
+    padding-block: 76px;
   }
-  @media (min-width: 768px) { .band { padding-block: 128px } }
+  @media (min-width: 768px) { .band { padding-block: 104px } }
 
-  /* Filete de ouro que separa as seções — some nas pontas */
-  .hairline {
-    height: 1px;
-    border: 0;
-    background: linear-gradient(
-      90deg,
-      transparent,
-      rgba(226, 188, 104, 0.28) 30%,
-      rgba(226, 188, 104, 0.28) 70%,
-      transparent
-    );
+  /* ─────────────── campo neural de fundo ─────────────── */
+
+  /* Camada única, fixa, atrás de tudo. Só transform anima — sem custo
+     de layout e sem JS. */
+  .neural-field {
+    position: fixed;
+    inset: -14%;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.55;
+  }
+
+  @keyframes drift-a {
+    0%, 100% { transform: translate3d(0, 0, 0) }
+    50% { transform: translate3d(2.2%, -1.6%, 0) }
+  }
+
+  @keyframes drift-b {
+    0%, 100% { transform: translate3d(0, 0, 0) }
+    50% { transform: translate3d(-1.8%, 2%, 0) }
+  }
+
+  .drift-a { animation: drift-a 46s ease-in-out infinite }
+  .drift-b { animation: drift-b 58s ease-in-out infinite }
+
+  @media (prefers-reduced-motion: reduce) {
+    .drift-a, .drift-b { animation: none }
   }
 
   /* ─────────────── tipografia ─────────────── */
@@ -144,12 +189,16 @@
     width: 5px;
     height: 5px;
     border-radius: 50%;
-    background: var(--color-gold);
-    box-shadow: 0 0 0 3px rgba(226, 188, 104, 0.16);
+    background: currentColor;
+    box-shadow: 0 0 0 3px rgba(216, 189, 136, 0.16);
     flex-shrink: 0;
   }
 
+  .eyebrow-petrol { color: var(--color-petrol-soft) }
+  .eyebrow-petrol::before { box-shadow: 0 0 0 3px rgba(92, 176, 194, 0.18) }
+
   .display {
+    font-variant-numeric: tabular-nums;
     font-family: var(--font-display);
     font-weight: 700;
     text-transform: uppercase;
@@ -159,12 +208,10 @@
     text-wrap: balance;
   }
 
-  .display-hero {
-    font-size: clamp(2.2rem, 5.6vw, 3.7rem);
-  }
+  .display-hero { font-size: clamp(2.2rem, 5.6vw, 3.7rem) }
 
   .display-section {
-    font-size: clamp(1.65rem, 3.8vw, 2.6rem);
+    font-size: clamp(1.6rem, 3.6vw, 2.5rem);
     line-height: 1.08;
   }
 
@@ -172,8 +219,8 @@
     font-family: var(--font-display);
     font-weight: 600;
     text-transform: uppercase;
-    font-size: clamp(1.05rem, 1.8vw, 1.3rem);
-    line-height: 1.2;
+    font-size: clamp(1rem, 1.7vw, 1.2rem);
+    line-height: 1.22;
     letter-spacing: 0.02em;
     color: var(--color-ink);
   }
@@ -185,8 +232,15 @@
     color: transparent;
   }
 
+  .teal {
+    background: linear-gradient(104deg, #14657a 0%, #9fdcea 44%, var(--color-petrol-soft) 80%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
   .lead {
-    font-size: clamp(1.02rem, 1.5vw, 1.18rem);
+    font-size: clamp(1.02rem, 1.5vw, 1.16rem);
     font-weight: 300;
     line-height: 1.68;
     color: var(--color-ink-soft);
@@ -194,6 +248,7 @@
   }
 
   .meta {
+    font-variant-numeric: tabular-nums;
     font-family: var(--font-mono);
     font-size: 0.72rem;
     letter-spacing: 0.14em;
@@ -205,33 +260,73 @@
 
   .panel {
     position: relative;
-    border-radius: 14px;
-    border: 1px solid rgba(226, 188, 104, 0.13);
+    border-radius: 16px;
+    border: 1px solid rgba(216, 189, 136, 0.15);
     background:
-      radial-gradient(120% 90% at 0% 0%, rgba(226, 188, 104, 0.075), transparent 58%),
-      linear-gradient(170deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.012));
+      radial-gradient(130% 100% at 0% 0%, rgba(216, 189, 136, 0.08), transparent 58%),
+      linear-gradient(168deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.012));
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.05),
-      0 26px 60px -34px rgba(0, 0, 0, 0.95);
-    backdrop-filter: blur(2px);
+      inset 0 1px 0 rgba(255, 255, 255, 0.06),
+      0 28px 64px -36px rgba(0, 0, 0, 0.95);
+    transition: transform 320ms cubic-bezier(0.16, 1, 0.3, 1), border-color 320ms ease;
+  }
+
+  .panel-petrol {
+    border-color: rgba(92, 176, 194, 0.22);
+    background:
+      radial-gradient(130% 100% at 0% 0%, rgba(92, 176, 194, 0.11), transparent 58%),
+      linear-gradient(168deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.012));
   }
 
   .panel-quiet {
-    border-radius: 14px;
-    border: 1px solid rgba(238, 243, 252, 0.07);
+    position: relative;
+    border-radius: 16px;
+    border: 1px solid rgba(237, 242, 250, 0.09);
     background:
-      radial-gradient(120% 90% at 0% 0%, rgba(238, 243, 252, 0.035), transparent 60%),
+      radial-gradient(130% 100% at 0% 0%, rgba(237, 242, 250, 0.04), transparent 60%),
       rgba(255, 255, 255, 0.015);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    transition: transform 320ms cubic-bezier(0.16, 1, 0.3, 1), border-color 320ms ease;
   }
 
-  /* Brilho de fundo — usado no topo e na oferta, em nenhum outro lugar */
+  @media (hover: hover) {
+    .panel-lift:hover {
+      transform: translateY(-4px);
+      border-color: rgba(216, 189, 136, 0.36);
+    }
+    .panel-petrol.panel-lift:hover { border-color: rgba(92, 176, 194, 0.48) }
+  }
+
+  /* Cápsula de ícone — mesma peça em toda a página */
+  .glyph {
+    display: grid;
+    place-items: center;
+    width: 46px;
+    height: 46px;
+    flex-shrink: 0;
+    border-radius: 13px;
+    border: 1px solid rgba(216, 189, 136, 0.28);
+    background: linear-gradient(160deg, rgba(216, 189, 136, 0.16), rgba(216, 189, 136, 0.03));
+    color: var(--color-gold);
+  }
+
+  .glyph-petrol {
+    border-color: rgba(92, 176, 194, 0.32);
+    background: linear-gradient(160deg, rgba(92, 176, 194, 0.2), rgba(92, 176, 194, 0.04));
+    color: var(--color-petrol-soft);
+  }
+
+  /* Brilho de fundo — só no topo e na oferta */
   .aura {
     position: absolute;
     border-radius: 50%;
     pointer-events: none;
-    background: radial-gradient(circle, rgba(226, 188, 104, 0.1), transparent 68%);
-    filter: blur(12px);
+    background: radial-gradient(circle, rgba(216, 189, 136, 0.12), transparent 68%);
+    filter: blur(14px);
+  }
+
+  .aura-petrol {
+    background: radial-gradient(circle, rgba(26, 107, 125, 0.26), transparent 68%);
   }
 
   /* ─────────────── ações ─────────────── */
@@ -242,18 +337,20 @@
     align-items: center;
     justify-content: center;
     gap: 10px;
-    min-height: 54px;
-    padding: 0 34px;
-    border-radius: 8px;
-    border-top: 1px solid rgba(255, 255, 255, 0.34);
-    background: linear-gradient(178deg, #f0d795 0%, #e2bc68 44%, #bf942f 100%);
-    color: #0a1122;
+    min-height: 56px;
+    padding: 0 28px;
+    border-radius: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.36);
+    background: linear-gradient(178deg, #ecdcb2 0%, #d8bd88 46%, #b59450 100%);
+    color: #071227;
     font-family: var(--font-body);
-    font-size: 0.94rem;
+    font-size: 0.84rem;
     font-weight: 700;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.05em;
+    line-height: 1.25;
+    text-align: center;
     text-transform: uppercase;
-    box-shadow: 0 14px 34px -16px rgba(226, 188, 104, 0.6);
+    box-shadow: 0 16px 38px -18px rgba(216, 189, 136, 0.66);
     transition: transform 220ms ease, box-shadow 220ms ease, filter 220ms ease;
   }
 
@@ -261,7 +358,7 @@
     .cta:hover {
       transform: translateY(-2px) scale(1.02);
       filter: brightness(1.06);
-      box-shadow: 0 20px 44px -16px rgba(226, 188, 104, 0.7);
+      box-shadow: 0 22px 48px -18px rgba(216, 189, 136, 0.78);
     }
   }
 
@@ -270,14 +367,20 @@
     filter: brightness(0.97);
   }
 
-  /* Pulso: um anel que nasce na borda e se abre. Fica no ::after para nao
+  /* O contorno dourado padrão sumiria dentro do botão dourado. */
+  .cta:focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 3px;
+  }
+
+  /* Pulso: anel que nasce na borda e se abre. Fica no ::after para não
      brigar com o box-shadow do hover. */
   .cta::after {
     content: '';
     position: absolute;
     inset: -2px;
     border-radius: inherit;
-    border: 1px solid rgba(226, 188, 104, 0.6);
+    border: 1px solid rgba(216, 189, 136, 0.6);
     opacity: 0;
     pointer-events: none;
     animation: cta-ring 3s ease-out infinite;
@@ -292,13 +395,7 @@
     .cta::after { display: none }
   }
 
-  /* O contorno dourado padrão sumiria dentro do botão dourado. */
-  .cta:focus-visible {
-    outline: 2px solid var(--color-ink);
-    outline-offset: 3px;
-  }
-
-  .cta-wide { width: 100%; padding-inline: 20px }
+  .cta-wide { width: 100%; padding-inline: 18px }
 
   .cta-ghost {
     display: inline-flex;
@@ -318,7 +415,6 @@
 
   /* ─────────────── pular para o conteúdo ─────────────── */
 
-  /* Primeiro item do Tab: aparece só quando recebe foco. */
   .skip-link {
     position: fixed;
     top: 12px;
@@ -330,7 +426,7 @@
     padding: 0 20px;
     border-radius: 8px;
     background: var(--color-gold);
-    color: #0a1122;
+    color: #071227;
     font-size: 0.85rem;
     font-weight: 700;
     transform: translateY(-180%);
@@ -345,18 +441,14 @@
 
   /* ─────────────── entrada ─────────────── */
 
-  /* Sequência de carregamento do topo. CSS puro: chega pronto no primeiro
-     quadro e não depende de JS para terminar visível. */
   @keyframes rise {
     from { opacity: 0; transform: translateY(18px) }
     to { opacity: 1; transform: none }
   }
 
-  .rise {
-    animation: rise 760ms cubic-bezier(0.16, 1, 0.3, 1) both;
-  }
+  .rise { animation: rise 760ms cubic-bezier(0.16, 1, 0.3, 1) both }
 
-  /* Revelação no scroll — a classe .is-in é ligada por IntersectionObserver */
+  /* Revelação no scroll — .is-in é ligada por IntersectionObserver */
   [data-reveal] {
     opacity: 0;
     transform: translateY(16px);
@@ -364,16 +456,13 @@
                 transform 700ms cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  [data-reveal].is-in {
-    opacity: 1;
-    transform: none;
-  }
+  [data-reveal].is-in { opacity: 1; transform: none }
 
   @media (prefers-reduced-motion: reduce) {
     [data-reveal] { opacity: 1; transform: none }
   }
 
-  /* O impulso percorrendo a sinapse — única animação em laço da página */
+  /* O impulso percorrendo a sinapse */
   @keyframes travel {
     from { stroke-dashoffset: 0 }
     to { stroke-dashoffset: -300 }
@@ -412,10 +501,10 @@
     width: 56px;
     height: 56px;
     border-radius: 50%;
-    border: 1px solid rgba(226, 188, 104, 0.4);
+    border: 1px solid rgba(216, 189, 136, 0.42);
     background:
-      radial-gradient(120% 120% at 30% 20%, rgba(226, 188, 104, 0.2), transparent 62%),
-      rgba(15, 34, 69, 0.94);
+      radial-gradient(120% 120% at 30% 20%, rgba(216, 189, 136, 0.22), transparent 62%),
+      rgba(14, 34, 71, 0.95);
     backdrop-filter: blur(10px);
     color: var(--color-gold);
     box-shadow: 0 16px 36px -14px rgba(0, 0, 0, 0.9);
@@ -426,7 +515,7 @@
   @media (hover: hover) {
     .wa-fab:hover {
       transform: translateY(-3px) scale(1.05);
-      border-color: rgba(226, 188, 104, 0.85);
+      border-color: rgba(216, 189, 136, 0.9);
       color: var(--color-gold-bright);
     }
   }
@@ -434,11 +523,6 @@
   .wa-fab:active { transform: scale(0.96) }
 
   @media (min-width: 768px) {
-    .wa-fab {
-      right: 28px;
-      bottom: 28px;
-      width: 60px;
-      height: 60px;
-    }
+    .wa-fab { right: 28px; bottom: 28px; width: 60px; height: 60px }
   }
 }

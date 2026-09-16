@@ -22,7 +22,255 @@ const PRECO = "197";
    praticado de verdade — anunciar desconto que nunca existiu é risco no CDC. */
 const PRECO_CHEIO = "497";
 
-const CTA_LABEL = "Começar agora";
+const CTA = "Quero dominar minhas decisões";
+const CTA_CURTO = "Quero dominar";
+
+/* ═══════════════ ÍCONES ═══════════════ */
+
+/* Traço único de 1.6, mesma grade de 24 — para não virar colcha de retalhos. */
+const GLYPHS: Record<string, ReactNode> = {
+  brain: (
+    <>
+      <path d="M12 5.5a2.6 2.6 0 0 0-5 .6A2.7 2.7 0 0 0 5.4 9 2.7 2.7 0 0 0 6 13.7 2.6 2.6 0 0 0 8.3 18a2.6 2.6 0 0 0 3.7-.6z" />
+      <path d="M12 5.5a2.6 2.6 0 0 1 5 .6A2.7 2.7 0 0 1 18.6 9a2.7 2.7 0 0 1-.6 4.7A2.6 2.6 0 0 1 15.7 18a2.6 2.6 0 0 1-3.7-.6z" />
+      <path d="M12 5.5v12.9" />
+    </>
+  ),
+  scale: (
+    <>
+      <path d="M12 4v16M7 20h10" />
+      <path d="M5 8h14M5 8l-2.6 5.4a3 3 0 0 0 5.2 0zM19 8l2.6 5.4a3 3 0 0 1-5.2 0z" />
+    </>
+  ),
+  target: (
+    <>
+      <circle cx="12" cy="12" r="8" />
+      <circle cx="12" cy="12" r="3.4" />
+      <path d="M12 4v2.4M12 17.6V20M4 12h2.4M17.6 12H20" />
+    </>
+  ),
+  handshake: (
+    <>
+      <path d="M8.5 11.5 11 14a1.6 1.6 0 0 0 2.3 0l3.4-3.4" />
+      <path d="m3 10 3.2-3.2a2 2 0 0 1 1.4-.6h2.3L12 8l1.1-1.8h2.3a2 2 0 0 1 1.4.6L21 10" />
+      <path d="M21 10v4.4a2 2 0 0 1-.6 1.4l-2.6 2.6a1.6 1.6 0 0 1-2.3 0l-1.3-1.3M3 10v4.4a2 2 0 0 0 .6 1.4l2.6 2.6a1.6 1.6 0 0 0 2.3 0l1.3-1.3" />
+    </>
+  ),
+  trending: (
+    <>
+      <path d="M3.5 16.5 9 11l3.4 3.4L20.5 6.5" />
+      <path d="M15.5 6.5h5v5" />
+    </>
+  ),
+  shield: (
+    <>
+      <path d="M12 3.2 19 5.8V11c0 4.3-2.9 8.2-7 9.2-4.1-1-7-4.9-7-9.2V5.8z" />
+      <path d="m8.9 12 2.2 2.2L15.3 10" />
+    </>
+  ),
+  book: (
+    <>
+      <path d="M4.5 4.8h5.2a2.6 2.6 0 0 1 2.3 1.4 2.6 2.6 0 0 1 2.3-1.4h5.2v13h-5.2a2.6 2.6 0 0 0-2.3 1.4 2.6 2.6 0 0 0-2.3-1.4H4.5z" />
+      <path d="M12 6.2v12" />
+    </>
+  ),
+  layers: (
+    <>
+      <path d="m12 3.6 8.4 4.3-8.4 4.3-8.4-4.3z" />
+      <path d="m3.6 12.4 8.4 4.3 8.4-4.3M3.6 16.6l8.4 4.3 8.4-4.3" />
+    </>
+  ),
+  clock: (
+    <>
+      <circle cx="12" cy="12" r="8.2" />
+      <path d="M12 7.4V12l3 1.8" />
+    </>
+  ),
+  device: (
+    <>
+      <rect x="3" y="4.6" width="13" height="10.4" rx="1.8" />
+      <path d="M3 18.6h10" />
+      <rect x="17.4" y="10" width="3.8" height="9" rx="1.2" />
+    </>
+  ),
+  eye: (
+    <>
+      <path d="M2.8 12S6.2 6.4 12 6.4 21.2 12 21.2 12 17.8 17.6 12 17.6 2.8 12 2.8 12z" />
+      <circle cx="12" cy="12" r="2.8" />
+    </>
+  ),
+  spark: (
+    <>
+      <path d="M12 3.4 13.7 9 19.2 10.7 13.7 12.4 12 18 10.3 12.4 4.8 10.7 10.3 9z" />
+      <path d="M18.4 16.2 19 18l1.8.6-1.8.6-.6 1.8-.6-1.8-1.8-.6 1.8-.6z" />
+    </>
+  ),
+};
+
+function Icon({ name, className = "w-[22px] h-[22px]" }: { name: keyof typeof GLYPHS; className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.6}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      {GLYPHS[name]}
+    </svg>
+  );
+}
+
+function Arrow() {
+  return (
+    <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden>
+      <path d="M5 12h13m0 0l-5-5m5 5l-5 5" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function Tick({ tone = "gold" }: { tone?: "gold" | "petrol" }) {
+  return (
+    <svg
+      className={`w-[18px] h-[18px] shrink-0 mt-[3px] ${tone === "gold" ? "text-gold" : "text-petrol-soft"}`}
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden
+    >
+      <path d="M4 12.5l5 5L20 6.5" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function Cross() {
+  return (
+    <svg className="w-[18px] h-[18px] shrink-0 mt-[3px] text-ink-faint" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function InstagramGlyph() {
+  return (
+    <svg className="w-[17px] h-[17px] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden>
+      <rect x="3" y="3" width="18" height="18" rx="5" strokeWidth={1.6} />
+      <circle cx="12" cy="12" r="4" strokeWidth={1.6} />
+      <circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+/* ═══════════════ CAMPO NEURAL DE FUNDO ═══════════════ */
+
+type Ponto = [number, number];
+
+const NOS_ESQ: Ponto[] = [
+  [70, 110], [206, 58], [332, 172], [176, 288], [54, 372],
+  [292, 416], [418, 296], [148, 520], [328, 598], [66, 676],
+  [248, 758], [424, 688],
+];
+
+const NOS_DIR: Ponto[] = [
+  [782, 92], [918, 178], [1058, 102], [842, 302], [998, 382],
+  [1142, 288], [792, 502], [946, 562], [1108, 478], [858, 698],
+  [1018, 756], [1158, 660],
+];
+
+/** Liga cada nó aos dois vizinhos mais próximos, sem repetir aresta. */
+function malha(nos: Ponto[]): [Ponto, Ponto][] {
+  const arestas: [Ponto, Ponto][] = [];
+  const vistas = new Set<string>();
+
+  nos.forEach((a, i) => {
+    nos
+      .map((b, j) => ({ b, j, d: (a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2 }))
+      .filter((x) => x.j !== i)
+      .sort((x, y) => x.d - y.d)
+      .slice(0, 2)
+      .forEach(({ b, j }) => {
+        const chave = i < j ? `${i}:${j}` : `${j}:${i}`;
+        if (vistas.has(chave)) return;
+        vistas.add(chave);
+        arestas.push([a, b]);
+      });
+  });
+
+  return arestas;
+}
+
+const MALHA_ESQ = malha(NOS_ESQ);
+const MALHA_DIR = malha(NOS_DIR);
+
+function NeuralField() {
+  return (
+    <div className="neural-field" aria-hidden>
+      <svg viewBox="0 0 1200 860" preserveAspectRatio="xMidYMid slice" className="w-full h-full">
+        <defs>
+          <linearGradient id="nf-gold" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#d8bd88" stopOpacity="0.5" />
+            <stop offset="100%" stopColor="#d8bd88" stopOpacity="0.08" />
+          </linearGradient>
+          <linearGradient id="nf-petrol" x1="1" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#5cb0c2" stopOpacity="0.5" />
+            <stop offset="100%" stopColor="#5cb0c2" stopOpacity="0.08" />
+          </linearGradient>
+        </defs>
+
+        <g className="drift-a" stroke="url(#nf-gold)" fill="#d8bd88" strokeWidth="0.7">
+          {MALHA_ESQ.map(([a, b], i) => (
+            <line key={`le-${i}`} x1={a[0]} y1={a[1]} x2={b[0]} y2={b[1]} opacity="0.5" />
+          ))}
+          {NOS_ESQ.map(([x, y], i) => (
+            <circle key={`ne-${i}`} cx={x} cy={y} r={i % 3 === 0 ? 2.6 : 1.7} stroke="none" opacity="0.55" />
+          ))}
+        </g>
+
+        <g className="drift-b" stroke="url(#nf-petrol)" fill="#5cb0c2" strokeWidth="0.7">
+          {MALHA_DIR.map(([a, b], i) => (
+            <line key={`ld-${i}`} x1={a[0]} y1={a[1]} x2={b[0]} y2={b[1]} opacity="0.5" />
+          ))}
+          {NOS_DIR.map(([x, y], i) => (
+            <circle key={`nd-${i}`} cx={x} cy={y} r={i % 3 === 0 ? 2.6 : 1.7} stroke="none" opacity="0.55" />
+          ))}
+        </g>
+      </svg>
+    </div>
+  );
+}
+
+/** Onda que separa seções — o mesmo traço do campo neural, ampliado. */
+function Wave({ id, flip = false }: { id: string; flip?: boolean }) {
+  return (
+    <div className={`relative h-[70px] md:h-[110px] overflow-hidden ${flip ? "rotate-180" : ""}`} aria-hidden>
+      <svg viewBox="0 0 1440 120" preserveAspectRatio="none" className="w-full h-full">
+        <defs>
+          <linearGradient id={`wv-${id}`} x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="#d8bd88" stopOpacity="0" />
+            <stop offset="30%" stopColor="#d8bd88" stopOpacity="0.5" />
+            <stop offset="68%" stopColor="#5cb0c2" stopOpacity="0.5" />
+            <stop offset="100%" stopColor="#5cb0c2" stopOpacity="0" />
+          </linearGradient>
+        </defs>
+        <path
+          d="M0 74c180-46 320 34 480 30s280-64 460-52 320 62 500 26"
+          fill="none"
+          stroke={`url(#wv-${id})`}
+          strokeWidth="1.2"
+        />
+        <path
+          d="M0 92c180-46 320 34 480 30s280-64 460-52 320 62 500 26"
+          fill="none"
+          stroke={`url(#wv-${id})`}
+          strokeWidth="0.7"
+          opacity="0.5"
+        />
+      </svg>
+    </div>
+  );
+}
 
 /* ═══════════════ PRIMITIVOS ═══════════════ */
 
@@ -70,52 +318,20 @@ function Reveal({
   );
 }
 
-function Arrow() {
+function BuyButton({ className = "", children }: { className?: string; children?: ReactNode }) {
   return (
-    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden>
-      <path d="M5 12h13m0 0l-5-5m5 5l-5 5" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function Tick() {
-  return (
-    <svg className="w-[18px] h-[18px] shrink-0 mt-[3px] text-gold" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path d="M4 12.5l5 5L20 6.5" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function InstagramGlyph() {
-  return (
-    <svg className="w-[17px] h-[17px] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden>
-      <rect x="3" y="3" width="18" height="18" rx="5" strokeWidth={1.6} />
-      <circle cx="12" cy="12" r="4" strokeWidth={1.6} />
-      <circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none" />
-    </svg>
-  );
-}
-
-function Shield() {
-  return (
-    <svg className="w-7 h-7 shrink-0 text-gold" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path
-        d="M12 3l7 2.6v5.2c0 4.3-2.9 8.2-7 9.2-4.1-1-7-4.9-7-9.2V5.6L12 3z"
-        stroke="currentColor"
-        strokeWidth={1.5}
-        strokeLinejoin="round"
-      />
-      <path d="M8.8 12.1l2.2 2.2 4.2-4.4" stroke="currentColor" strokeWidth={1.7} strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
+    <a href={KIWIFY} target="_blank" rel="noopener noreferrer" className={`cta ${className}`}>
+      {children ?? CTA} <Arrow />
+    </a>
   );
 }
 
 /* ═══════════════ CABEÇALHO ═══════════════ */
 
 const NAV = [
-  { href: "#tese", label: "A tese" },
+  { href: "#diagnostico", label: "O problema" },
   { href: "#metodo", label: "Método" },
-  { href: "#bonus", label: "Bônus" },
+  { href: "#conteudo", label: "Conteúdo" },
   { href: "#oferta", label: "Investimento" },
 ];
 
@@ -132,8 +348,8 @@ function Header() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  /* Menu aberto: Esc fecha, o fundo nao rola, o Tab fica preso no painel
-     e o foco volta para o botao ao sair. */
+  /* Menu aberto: Esc fecha, o fundo não rola, o Tab fica preso no painel
+     e o foco volta para o botão ao sair. */
   useEffect(() => {
     if (!open) return;
 
@@ -175,7 +391,7 @@ function Header() {
   return (
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-colors duration-300 ${
-        solid || open ? "bg-abyss/92 backdrop-blur-lg border-b border-white/[0.06]" : ""
+        solid || open ? "bg-abyss/92 backdrop-blur-lg border-b border-white/[0.07]" : ""
       }`}
     >
       <div className="shell flex items-center gap-6 h-[68px]">
@@ -192,17 +408,17 @@ function Header() {
             className="h-8 w-auto"
             priority
           />
-          <span className="hidden sm:block font-display text-[0.82rem] font-semibold tracking-[0.13em] uppercase text-ink">
+          <span className="hidden sm:block font-display text-[0.8rem] font-semibold tracking-[0.13em] uppercase text-ink">
             Sinapse Empresarial
           </span>
         </a>
 
-        <nav aria-label="Seções da página" className="hidden lg:flex items-center gap-7 ml-auto">
+        <nav aria-label="Seções da página" className="hidden lg:flex items-center gap-6 ml-auto">
           {NAV.map((item) => (
             <a
               key={item.href}
               href={item.href}
-              className="inline-flex items-center min-h-[44px] px-1 text-[0.86rem] text-ink-muted hover:text-ink transition-colors duration-200"
+              className="inline-flex items-center min-h-[44px] px-1 text-[0.84rem] text-ink-muted hover:text-ink transition-colors duration-200"
             >
               {item.label}
             </a>
@@ -212,10 +428,10 @@ function Header() {
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => trackContact("instagram_header")}
-            className="inline-flex items-center gap-2 min-h-[44px] px-1 text-[0.86rem] text-ink-muted hover:text-gold transition-colors duration-200"
+            aria-label="Instagram de Deyllane Lacerda"
+            className="inline-flex items-center justify-center w-11 h-11 rounded-lg text-ink-muted hover:text-gold transition-colors duration-200"
           >
             <InstagramGlyph />
-            @lacerdadeyllane
           </a>
         </nav>
 
@@ -223,9 +439,9 @@ function Header() {
           href={KIWIFY}
           target="_blank"
           rel="noopener noreferrer"
-          className="cta ml-auto lg:ml-0 hidden sm:inline-flex min-h-[44px] px-5 text-[0.78rem]"
+          className="cta ml-auto lg:ml-0 hidden sm:inline-flex min-h-[44px] px-5 text-[0.74rem]"
         >
-          {CTA_LABEL}
+          {CTA_CURTO}
         </a>
 
         <button
@@ -252,7 +468,7 @@ function Header() {
           <div
             aria-hidden="true"
             onClick={() => setOpen(false)}
-            className="lg:hidden fixed inset-x-0 bottom-0 top-[68px] bg-abyss/78 backdrop-blur-sm"
+            className="lg:hidden fixed inset-x-0 bottom-0 top-[68px] bg-abyss/80 backdrop-blur-sm"
           />
           <div
             id="menu-mobile"
@@ -260,7 +476,7 @@ function Header() {
             role="dialog"
             aria-modal="true"
             aria-label="Navegação"
-            className="lg:hidden relative z-10 border-t border-white/[0.06] bg-abyss/98 backdrop-blur-xl rise"
+            className="lg:hidden relative z-10 border-t border-white/[0.07] bg-abyss/98 backdrop-blur-xl rise"
           >
             <nav className="shell py-4 flex flex-col">
               {NAV.map((item) => (
@@ -274,14 +490,19 @@ function Header() {
                 </a>
               ))}
               <a
-                href={KIWIFY}
+                href={INSTA}
                 target="_blank"
                 rel="noopener noreferrer"
-                onClick={() => setOpen(false)}
-                className="cta mt-5 mb-2"
+                onClick={() => {
+                  setOpen(false);
+                  trackContact("instagram_menu");
+                }}
+                className="flex items-center gap-2.5 min-h-[52px] border-b border-white/[0.05] text-ink-soft hover:text-gold transition-colors"
               >
-                {CTA_LABEL} <Arrow />
+                <InstagramGlyph />
+                @lacerdadeyllane
               </a>
+              <BuyButton className="mt-5 mb-2" />
             </nav>
           </div>
         </>
@@ -294,72 +515,75 @@ function Header() {
 
 function Hero() {
   return (
-    <section id="topo" className="relative overflow-hidden pt-[116px] pb-20 md:pt-[148px] md:pb-28">
-      <div className="aura w-[640px] h-[640px] -top-[260px] -left-[180px]" />
-      <div className="aura w-[520px] h-[520px] top-[120px] -right-[200px] opacity-70" />
+    <section id="topo" className="relative overflow-hidden pt-[112px] pb-16 md:pt-[144px] md:pb-24">
+      <div className="aura w-[640px] h-[640px] -top-[280px] -left-[180px]" />
+      <div className="aura aura-petrol w-[560px] h-[560px] top-[80px] -right-[220px]" />
 
-      <div className="shell relative grid lg:grid-cols-[1.16fr_0.84fr] gap-14 lg:gap-16 items-center">
+      <div className="shell grid lg:grid-cols-[1.16fr_0.84fr] gap-12 lg:gap-16 items-center">
         <div>
           <p className="eyebrow rise" style={{ animationDelay: "80ms" }}>
             Neurociência aplicada a negócios
           </p>
 
-          <h1 className="display display-hero mt-7 rise" style={{ animationDelay: "170ms" }}>
+          <h1 className="display display-hero mt-6 rise" style={{ animationDelay: "170ms" }}>
             Você não decide.
             <br />
-            <span className="gilt">Seu cérebro já decidiu.</span>
+            <span className="gilt">
+              Seu cérebro
+              <br />
+              já decidiu.
+            </span>
           </h1>
 
-          <p className="lead mt-7 max-w-[520px] rise" style={{ animationDelay: "280ms" }}>
+          <p className="lead mt-6 max-w-[520px] rise" style={{ animationDelay: "280ms" }}>
             Com o seu cliente é igual. O Sinapse Empresarial treina os dois lados da mesma
             sinapse: a decisão que você toma com dinheiro e a decisão que ele toma na hora de
             comprar.
           </p>
 
-          <div
-            className="mt-11 flex flex-wrap items-end gap-x-12 gap-y-7 rise"
-            style={{ animationDelay: "390ms" }}
-          >
+          <div className="mt-9 flex flex-wrap items-end gap-x-10 gap-y-6 rise" style={{ animationDelay: "390ms" }}>
             <div>
-              <p className="meta">Investimento</p>
+              <p className="meta">Acesso completo</p>
               <p className="text-ink-muted line-through text-sm mt-2">R$ {PRECO_CHEIO}</p>
               <div className="flex items-baseline gap-2.5 mt-0.5">
                 <span className="font-display text-gold text-xl font-semibold leading-none">R$</span>
                 <span className="display gilt text-[3rem] leading-none">{PRECO}</span>
               </div>
-              <p className="meta mt-2.5">Investimento único · Um ano de acesso</p>
+              <p className="meta mt-2.5">Pagamento único · Sem mensalidades</p>
             </div>
 
-            <a href={KIWIFY} target="_blank" rel="noopener noreferrer" className="cta">
-              {CTA_LABEL} <Arrow />
-            </a>
+            <BuyButton className="max-w-[320px]" />
           </div>
 
-          <p className="meta mt-7 rise" style={{ animationDelay: "480ms" }}>
-            Garantia de 7 dias · Acesso imediato
-          </p>
+          <ul className="mt-8 flex flex-wrap gap-x-7 gap-y-2 rise" style={{ animationDelay: "480ms" }}>
+            {["12\u00a0meses de acesso", "Garantia de 7\u00a0dias", "Acesso imediato"].map((item) => (
+              <li key={item} className="meta flex items-center gap-2">
+                <Icon name="shield" className="w-[14px] h-[14px] text-gold" />
+                {item}
+              </li>
+            ))}
+          </ul>
         </div>
 
-        <figure className="relative rise mx-auto w-full max-w-[420px]" style={{ animationDelay: "320ms" }}>
-          <div className="relative overflow-hidden rounded-[18px] border border-gold/20">
+        <figure className="relative rise mx-auto w-full max-w-[400px]" style={{ animationDelay: "320ms" }}>
+          <div className="relative overflow-hidden rounded-[18px] border border-gold/22">
             <Image
               src={retratoTopo}
               alt="Deyllane Lacerda em atendimento, com celular e tablet nas mãos"
               priority
               placeholder="blur"
-              sizes="(max-width: 1024px) 90vw, 420px"
+              sizes="(max-width: 1024px) 88vw, 400px"
               className="w-full h-auto"
             />
             <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-abyss to-transparent" />
           </div>
-
           <figcaption className="absolute left-5 right-5 bottom-5">
             <Image
               src="/images/logo-deyllane.png"
               alt="Deyllane Lacerda — Estrategista de Negócios"
               width={1000}
               height={426}
-              className="w-[190px] h-auto"
+              className="w-[180px] h-auto"
             />
           </figcaption>
         </figure>
@@ -368,57 +592,92 @@ function Hero() {
   );
 }
 
-/* ═══════════════ A TESE ═══════════════ */
+/* ═══════════════ PROVA DE VALOR ═══════════════ */
+
+const VALOR = [
+  { n: "6", u: "frentes", d: "Do comportamento com dinheiro ao fechamento da venda", i: "layers" as const },
+  { n: "4", u: "e-books", d: "Material de consulta rápida, para abrir antes da reunião", i: "book" as const },
+  { n: "12", u: "meses", d: "De acesso a tudo, no seu ritmo e de qualquer dispositivo", i: "clock" as const },
+  { n: "7", u: "dias", d: "De garantia integral, sem precisar justificar nada", i: "shield" as const },
+];
+
+function ValueStrip() {
+  return (
+    <section className="relative pb-4">
+      <div className="shell grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+        {VALOR.map((v, i) => (
+          <Reveal key={v.u} delay={i * 70}>
+            <div className="panel panel-lift h-full p-5 md:p-6">
+              <div className="glyph w-10 h-10">
+                <Icon name={v.i} className="w-[19px] h-[19px]" />
+              </div>
+              <p className="mt-4 flex items-baseline gap-1.5">
+                <span className="display gilt text-[1.9rem] leading-none">{v.n}</span>
+                <span className="meta">{v.u}</span>
+              </p>
+              <p className="mt-2 text-[0.85rem] leading-snug text-ink-muted">{v.d}</p>
+            </div>
+          </Reveal>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ═══════════════ DIAGNÓSTICO ═══════════════ */
 
 const SINTOMAS = [
   {
+    i: "scale" as const,
     t: "O faturamento sobe, o aperto continua",
     d: "Entra mais dinheiro do que ano passado e a sensação no fim do mês é exatamente a mesma.",
   },
   {
+    i: "handshake" as const,
     t: "Você desconta antes de pedirem",
-    d: "O preço sai da sua boca já menor. A negociação termina antes de começar.",
+    d: "O preço sai da sua boca já menor. A negociação termina antes mesmo de começar.",
   },
   {
+    i: "target" as const,
     t: "A meta está no papel há seis meses",
     d: "Você sabe qual é o próximo passo. Ele simplesmente não acontece.",
   },
 ];
 
-function Thesis() {
+function Diagnosis() {
   return (
-    <section id="tese" className="band">
+    <section id="diagnostico" className="band">
       <div className="shell">
         <Reveal>
           <p className="eyebrow">O diagnóstico</p>
-          <h2 className="display display-section mt-6 max-w-[620px]">
+          <h2 className="display display-section mt-5 max-w-[620px]">
             Você já sabe o que fazer.
             <br />
             E mesmo assim não faz.
           </h2>
-        </Reveal>
-
-        <Reveal delay={80}>
-          <p className="lead mt-7 max-w-[600px]">
+          <p className="lead mt-6 max-w-[600px]">
             Falta de informação parou de ser o seu problema há muito tempo. O que trava um
             empreendedor que já fatura não é o que ele ignora — é o que o cérebro dele faz com a
             informação quando há dinheiro e risco na mesa.
           </p>
         </Reveal>
 
-        <div className="grid md:grid-cols-3 gap-4 mt-14">
+        <div className="grid md:grid-cols-3 gap-4 mt-12">
           {SINTOMAS.map((s, i) => (
-            <Reveal key={s.t} delay={120 + i * 90}>
-              <article className="panel h-full p-7">
-                <h3 className="display-sm">{s.t}</h3>
-                <p className="mt-3 text-[0.95rem] leading-relaxed text-ink-muted">{s.d}</p>
+            <Reveal key={s.t} delay={100 + i * 80}>
+              <article className="panel panel-lift h-full p-7">
+                <div className="glyph">
+                  <Icon name={s.i} />
+                </div>
+                <h3 className="display-sm mt-5">{s.t}</h3>
+                <p className="mt-3 text-[0.94rem] leading-relaxed text-ink-muted">{s.d}</p>
               </article>
             </Reveal>
           ))}
         </div>
 
-        <Reveal delay={400}>
-          <p className="lead mt-14 max-w-[640px] text-ink">
+        <Reveal delay={360}>
+          <p className="lead mt-12 max-w-[640px] text-ink">
             Nada disso é indisciplina. É a forma como o seu cérebro decide sob incerteza — e ela
             é treinável.
           </p>
@@ -428,37 +687,43 @@ function Thesis() {
   );
 }
 
-/* ═══════════════ A SINAPSE — elemento-assinatura ═══════════════ */
+/* ═══════════════ O MECANISMO ═══════════════ */
 
 function SynapseDiagram() {
   return (
     <svg
       viewBox="0 0 900 340"
-      className="w-full h-auto scale-[1.28] sm:scale-100 origin-center"
+      className="w-full h-auto scale-[1.24] sm:scale-100 origin-center"
       role="img"
       aria-label="Diagrama: as suas decisões e as decisões do cliente ligadas por uma mesma sinapse"
     >
       <defs>
-        <linearGradient id="axon" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stopColor="#a97e28" />
-          <stop offset="50%" stopColor="#f7e4b0" />
-          <stop offset="100%" stopColor="#a97e28" />
+        <linearGradient id="ax-gold" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor="#a2803b" />
+          <stop offset="100%" stopColor="#f2e3be" />
+        </linearGradient>
+        <linearGradient id="ax-petrol" x1="1" y1="0" x2="0" y2="0">
+          <stop offset="0%" stopColor="#14657a" />
+          <stop offset="100%" stopColor="#bfe9f2" />
         </linearGradient>
         <radialGradient id="core">
-          <stop offset="0%" stopColor="#fff6df" />
-          <stop offset="55%" stopColor="#e2bc68" />
-          <stop offset="100%" stopColor="#e2bc68" stopOpacity="0" />
+          <stop offset="0%" stopColor="#fff8e7" />
+          <stop offset="45%" stopColor="#d8bd88" />
+          <stop offset="100%" stopColor="#5cb0c2" stopOpacity="0" />
         </radialGradient>
       </defs>
 
-      <g stroke="url(#axon)" fill="none" strokeWidth="1.7" opacity="0.8" strokeLinecap="round">
-        {/* dendritos — lado de cá */}
+      {/* dendritos — o seu lado, em dourado */}
+      <g stroke="url(#ax-gold)" fill="none" strokeWidth="1.7" opacity="0.82" strokeLinecap="round">
         <path d="M110 92 C170 112 240 122 300 170" />
         <path d="M92 182 C160 178 240 173 300 170" />
         <path d="M138 266 C192 242 252 206 300 170" />
         <path d="M216 128 C250 142 276 155 300 170" />
         <path d="M198 236 C240 212 272 190 300 170" />
-        {/* dendritos — lado de lá */}
+      </g>
+
+      {/* dendritos — o lado do cliente, em petróleo */}
+      <g stroke="url(#ax-petrol)" fill="none" strokeWidth="1.7" opacity="0.82" strokeLinecap="round">
         <path d="M790 92 C730 112 660 122 600 170" />
         <path d="M808 182 C740 178 660 173 600 170" />
         <path d="M762 266 C708 242 648 206 600 170" />
@@ -466,32 +731,34 @@ function SynapseDiagram() {
         <path d="M702 236 C660 212 628 190 600 170" />
       </g>
 
-      {/* axônio: o caminho que o impulso percorre até a fenda e depois dela */}
-      <path d="M300 170 H392" stroke="url(#axon)" strokeWidth="2" fill="none" opacity="0.75" />
-      <path d="M508 170 H600" stroke="url(#axon)" strokeWidth="2" fill="none" opacity="0.75" />
+      {/* axônio: o caminho até a fenda e depois dela */}
+      <path d="M300 170 H392" stroke="url(#ax-gold)" strokeWidth="2.2" fill="none" opacity="0.8" />
+      <path d="M508 170 H600" stroke="url(#ax-petrol)" strokeWidth="2.2" fill="none" opacity="0.8" />
       <path
         className="impulse"
         d="M300 170 H600"
-        stroke="#fff6df"
+        stroke="#fff8e7"
         strokeWidth="4"
         strokeLinecap="round"
         fill="none"
       />
 
       {/* a fenda sináptica — o intervalo onde a decisão acontece */}
-      <circle cx="450" cy="170" r="58" fill="url(#core)" opacity="0.62" />
-      <circle cx="418" cy="170" r="2.4" fill="#f7e4b0" opacity="0.8" />
-      <circle cx="450" cy="158" r="2.8" fill="#f7e4b0" opacity="0.9" />
-      <circle cx="450" cy="183" r="2.2" fill="#f7e4b0" opacity="0.7" />
-      <circle cx="482" cy="170" r="2.4" fill="#f7e4b0" opacity="0.8" />
+      <circle cx="450" cy="170" r="62" fill="url(#core)" opacity="0.6" />
+      <circle cx="418" cy="170" r="2.4" fill="#f2e3be" opacity="0.85" />
+      <circle cx="450" cy="157" r="2.8" fill="#f2e3be" opacity="0.95" />
+      <circle cx="450" cy="184" r="2.2" fill="#bfe9f2" opacity="0.75" />
+      <circle cx="482" cy="170" r="2.4" fill="#bfe9f2" opacity="0.85" />
 
       {/* nós terminais */}
-      <g fill="#e2bc68">
+      <g fill="#d8bd88">
         <circle cx="110" cy="92" r="5" />
         <circle cx="92" cy="182" r="5" />
         <circle cx="138" cy="266" r="5" />
         <circle cx="216" cy="128" r="4" />
         <circle cx="198" cy="236" r="4" />
+      </g>
+      <g fill="#5cb0c2">
         <circle cx="790" cy="92" r="5" />
         <circle cx="808" cy="182" r="5" />
         <circle cx="762" cy="266" r="5" />
@@ -500,43 +767,44 @@ function SynapseDiagram() {
       </g>
 
       {/* hubs */}
-      <circle cx="300" cy="170" r="9" fill="#0f2245" stroke="#e2bc68" strokeWidth="2.4" />
-      <circle cx="600" cy="170" r="9" fill="#0f2245" stroke="#e2bc68" strokeWidth="2.4" />
-      <circle className="node-live" cx="450" cy="170" r="5" fill="#fff6df" />
+      <circle cx="300" cy="170" r="9" fill="#0e2247" stroke="#d8bd88" strokeWidth="2.4" />
+      <circle cx="600" cy="170" r="9" fill="#0e2247" stroke="#5cb0c2" strokeWidth="2.4" />
+      <circle className="node-live" cx="450" cy="170" r="5" fill="#fff8e7" />
     </svg>
   );
 }
 
-function Synapse() {
+function Mechanism() {
   return (
     <section className="band relative overflow-hidden">
-      <hr className="hairline absolute inset-x-0 top-0" />
-
       <div className="shell">
         <Reveal className="text-center">
           <p className="eyebrow">O mecanismo</p>
-          <h2 className="display display-section mt-6 mx-auto max-w-[620px]">
+          <h2 className="display display-section mt-5 mx-auto max-w-[620px]">
             Duas decisões.
             <br />
             <span className="gilt">Um mecanismo.</span>
           </h2>
-          <p className="lead mt-7 mx-auto max-w-[620px]">
+          <p className="lead mt-6 mx-auto max-w-[620px]">
             Decidir sobre o próprio dinheiro e fazer alguém decidir comprar são o mesmo evento
             visto de dois lados: um cérebro escolhendo sob incerteza. É por isso que finanças
             comportamentais e neurovendas não são dois assuntos — são um só.
           </p>
         </Reveal>
 
-        <Reveal delay={140} className="mt-14 md:mt-16">
+        <Reveal delay={140} className="mt-12 md:mt-14">
           <SynapseDiagram />
         </Reveal>
 
         <div className="grid sm:grid-cols-2 gap-5 mt-12">
           <Reveal delay={200}>
-            <div className="panel p-7 h-full">
-              <p className="meta text-gold">Lado de cá</p>
+            <div className="panel panel-lift p-7 h-full">
+              <div className="glyph">
+                <Icon name="brain" />
+              </div>
+              <p className="eyebrow mt-5">Lado de cá</p>
               <h3 className="display-sm mt-3">A sua decisão</h3>
-              <p className="mt-3 text-[0.95rem] leading-relaxed text-ink-muted">
+              <p className="mt-3 text-[0.94rem] leading-relaxed text-ink-muted">
                 Finanças comportamentais: os vieses que aparecem quando o caixa aperta, o padrão
                 que recria a dívida depois de quitada, a meta que evapora em três semanas.
               </p>
@@ -544,10 +812,13 @@ function Synapse() {
           </Reveal>
 
           <Reveal delay={280}>
-            <div className="panel p-7 h-full">
-              <p className="meta text-gold">Lado de lá</p>
+            <div className="panel panel-petrol panel-lift p-7 h-full">
+              <div className="glyph glyph-petrol">
+                <Icon name="eye" />
+              </div>
+              <p className="eyebrow eyebrow-petrol mt-5">Lado de lá</p>
               <h3 className="display-sm mt-3">A decisão dele</h3>
-              <p className="mt-3 text-[0.95rem] leading-relaxed text-ink-muted">
+              <p className="mt-3 text-[0.94rem] leading-relaxed text-ink-muted">
                 Neurovendas e negociação: como a confiança se forma em segundos, por que a
                 objeção é pedido de segurança, e onde o preço é ancorado antes de ser dito.
               </p>
@@ -559,21 +830,96 @@ function Synapse() {
   );
 }
 
+/* ═══════════════ TRANSFORMAÇÃO ═══════════════ */
+
+const MUDANCAS = [
+  {
+    antes: "O preço sai da sua boca já com desconto",
+    depois: "Você ancora o valor antes de falar em número",
+  },
+  {
+    antes: "Decisão de dinheiro no impulso, sob pressão",
+    depois: "Você reconhece o viés antes de assinar",
+  },
+  {
+    antes: "A objeção encerra a conversa",
+    depois: "A objeção vira o ponto onde você fecha",
+  },
+  {
+    antes: "A meta evapora em três semanas",
+    depois: "A meta sobrevive porque o formato respeita o cérebro",
+  },
+];
+
+function Transformation() {
+  return (
+    <section className="band">
+      <div className="shell">
+        <Reveal>
+          <p className="eyebrow">O que muda na prática</p>
+          <h2 className="display display-section mt-5 max-w-[620px]">
+            De reagir a <span className="gilt">decidir</span>
+          </h2>
+          <p className="lead mt-6 max-w-[600px]">
+            Não é sobre saber mais. É sobre mudar o que acontece nos segundos em que a decisão
+            é tomada — a sua e a do seu cliente.
+          </p>
+        </Reveal>
+
+        <div className="mt-12 grid gap-3">
+          <Reveal>
+            <div className="hidden md:grid grid-cols-[1fr_auto_1fr] gap-6 px-7 pb-1">
+              <p className="meta">Como é hoje</p>
+              <span className="w-5" />
+              <p className="meta text-gold">Depois do método</p>
+            </div>
+          </Reveal>
+
+          {MUDANCAS.map((m, i) => (
+            <Reveal key={m.antes} delay={i * 70}>
+              <div className="panel-quiet grid md:grid-cols-[1fr_auto_1fr] items-center gap-4 md:gap-6 p-6 md:px-7">
+                <p className="text-[0.94rem] leading-relaxed text-ink-faint md:line-through">
+                  {m.antes}
+                </p>
+                <span className="hidden md:grid place-items-center w-5 text-gold">
+                  <Arrow />
+                </span>
+                <p className="text-[0.96rem] leading-relaxed text-ink font-medium">{m.depois}</p>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+
+        <Reveal delay={320}>
+          <p className="meta mt-8 normal-case tracking-normal text-ink-faint max-w-[620px]">
+            Isto é o que o método ensina a fazer. O resultado de cada pessoa depende da
+            aplicação — não existe garantia de faturamento aqui.
+          </p>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
 /* ═══════════════ MÉTODO ═══════════════ */
 
 const FRENTES = [
   {
     lado: "A sua decisão",
+    tom: "gold" as const,
     itens: [
       {
+        i: "brain" as const,
         t: "Decidir sob pressão",
         d: "Quais vieses assumem o comando quando o caixa aperta — e como interromper o automático antes de assinar.",
       },
       {
+        i: "scale" as const,
         t: "Dívida é sintoma",
         d: "Sair do vermelho é consequência. O trabalho é no padrão que recria a dívida mesmo depois dela ser quitada.",
       },
       {
+        i: "trending" as const,
         t: "Dinheiro com método",
         d: "Organização financeira que sobrevive a um mês ruim, sem planilha complicada e sem promessa de disciplina eterna.",
       },
@@ -581,16 +927,20 @@ const FRENTES = [
   },
   {
     lado: "A decisão dele",
+    tom: "petrol" as const,
     itens: [
       {
+        i: "spark" as const,
         t: "O sim antes do argumento",
         d: "A confiança se forma antes da sua primeira frase técnica. Como construí-la de propósito, não por sorte.",
       },
       {
+        i: "target" as const,
         t: "Ancoragem e preço",
         d: "Por que você desconta sozinho e como ancorar valor de um jeito que o desconto deixa de ser o assunto.",
       },
       {
+        i: "handshake" as const,
         t: "Objeção e fechamento",
         d: "Toda objeção é um pedido de segurança. Como responder ao pedido real e fechar sem empurrar.",
       },
@@ -601,26 +951,36 @@ const FRENTES = [
 function Method() {
   return (
     <section id="metodo" className="band">
-      <hr className="hairline absolute inset-x-0 top-0" />
       <div className="shell">
         <Reveal>
           <p className="eyebrow">O que você domina</p>
-          <h2 className="display display-section mt-6 max-w-[560px]">Seis frentes, um eixo</h2>
+          <h2 className="display display-section mt-5 max-w-[560px]">Seis frentes, um eixo</h2>
         </Reveal>
 
-        <div className="grid lg:grid-cols-2 gap-x-12 gap-y-12 mt-14">
+        <div className="grid lg:grid-cols-2 gap-x-10 gap-y-10 mt-12">
           {FRENTES.map((coluna, ci) => (
             <div key={coluna.lado}>
-              <Reveal delay={ci * 90}>
-                <p className="meta text-gold pb-4 border-b border-gold/15">{coluna.lado}</p>
+              <Reveal delay={ci * 80}>
+                <p className={`eyebrow ${coluna.tom === "petrol" ? "eyebrow-petrol" : ""}`}>
+                  {coluna.lado}
+                </p>
               </Reveal>
 
-              <div className="mt-2">
+              <div className="grid gap-3 mt-5">
                 {coluna.itens.map((item, i) => (
-                  <Reveal key={item.t} delay={ci * 90 + i * 80}>
-                    <article className="py-7 border-b border-white/[0.06]">
-                      <h3 className="display-sm">{item.t}</h3>
-                      <p className="mt-2.5 text-[0.95rem] leading-relaxed text-ink-muted">{item.d}</p>
+                  <Reveal key={item.t} delay={ci * 80 + i * 70}>
+                    <article
+                      className={`panel panel-lift h-full p-6 flex gap-5 ${
+                        coluna.tom === "petrol" ? "panel-petrol" : ""
+                      }`}
+                    >
+                      <div className={`glyph ${coluna.tom === "petrol" ? "glyph-petrol" : ""}`}>
+                        <Icon name={item.i} />
+                      </div>
+                      <div>
+                        <h3 className="display-sm">{item.t}</h3>
+                        <p className="mt-2.5 text-[0.92rem] leading-relaxed text-ink-muted">{item.d}</p>
+                      </div>
                     </article>
                   </Reveal>
                 ))}
@@ -628,68 +988,57 @@ function Method() {
             </div>
           ))}
         </div>
-
-        <Reveal delay={200}>
-          <p className="lead mt-14 max-w-[620px]">
-            Tudo em aulas online curtas, para assistir e aplicar na mesma semana. Sem teoria
-            acadêmica solta e sem aula de duas horas que você nunca termina.
-          </p>
-        </Reveal>
       </div>
     </section>
   );
 }
 
-/* ═══════════════ BÔNUS ═══════════════ */
+/* ═══════════════ CONTEÚDO RECEBIDO ═══════════════ */
 
-const BONUS = [
+const ENTREGA = [
   {
-    t: "Negociação online",
-    d: "Resumo aplicável do que muda quando a negociação acontece por mensagem, sem tom de voz e sem olho no olho.",
+    i: "device" as const,
+    t: "Aulas online curtas",
+    d: "No seu ritmo, de qualquer dispositivo. Feitas para caber entre compromissos: assistir hoje, aplicar esta semana.",
   },
   {
-    t: "Leitura corporal",
-    d: "O que o corpo entrega antes da fala — e como usar isso para saber a hora exata de avançar ou recuar.",
+    i: "layers" as const,
+    t: "Seis frentes em sequência",
+    d: "Do comportamento com dinheiro até o fechamento da venda, na ordem em que uma sustenta a outra.",
   },
   {
-    t: "Confiança instantânea",
-    d: "Atalhos para entrar no subconsciente do cliente e encurtar o tempo entre a dúvida e a decisão.",
+    i: "book" as const,
+    t: "Quatro e-books de bônus",
+    d: "Negociação online, leitura corporal, confiança instantânea e mentalidade financeira.",
   },
   {
-    t: "Mentalidade financeira",
-    d: "E-books autorais sobre a relação com dinheiro que você herdou e nunca parou para questionar.",
+    i: "clock" as const,
+    t: "Doze meses de acesso",
+    d: "Para voltar quantas vezes precisar, incluindo o material de apoio e os bônus.",
   },
 ];
 
-function Bonus() {
+function Deliverables() {
   return (
-    <section id="bonus" className="band relative">
-      <hr className="hairline absolute inset-x-0 top-0" />
+    <section id="conteudo" className="band">
       <div className="shell">
         <Reveal>
-          <p className="eyebrow">Incluído</p>
-          <h2 className="display display-section mt-6 max-w-[560px]">
-            Quatro materiais de <span className="gilt">consulta rápida</span>
+          <p className="eyebrow">O que chega na sua mão</p>
+          <h2 className="display display-section mt-5 max-w-[560px]">
+            Tudo o que <span className="gilt">você recebe</span>
           </h2>
-          <p className="lead mt-7 max-w-[580px]">
-            Feitos para abrir cinco minutos antes de uma reunião, não para ler no fim de semana.
-          </p>
         </Reveal>
 
-        <div className="grid sm:grid-cols-2 gap-4 mt-14">
-          {BONUS.map((b, i) => (
-            <Reveal key={b.t} delay={i * 80}>
-              <article className="panel-quiet h-full p-7 flex gap-5">
-                <Image
-                  src="/images/logo-sinapse-mark.png"
-                  alt=""
-                  width={560}
-                  height={400}
-                  className="h-6 w-auto shrink-0 opacity-55 mt-0.5"
-                />
+        <div className="grid md:grid-cols-2 gap-4 mt-12">
+          {ENTREGA.map((e, i) => (
+            <Reveal key={e.t} delay={i * 70}>
+              <article className="panel panel-lift h-full p-7 flex gap-5">
+                <div className="glyph">
+                  <Icon name={e.i} />
+                </div>
                 <div>
-                  <h3 className="display-sm">{b.t}</h3>
-                  <p className="mt-2.5 text-[0.95rem] leading-relaxed text-ink-muted">{b.d}</p>
+                  <h3 className="display-sm">{e.t}</h3>
+                  <p className="mt-2.5 text-[0.94rem] leading-relaxed text-ink-muted">{e.d}</p>
                 </div>
               </article>
             </Reveal>
@@ -700,23 +1049,146 @@ function Bonus() {
   );
 }
 
-/* ═══════════════ QUALIFICAÇÃO ═══════════════ */
+/* ═══════════════ BÔNUS ═══════════════ */
 
-/* ═══════════════ MENTORA ═══════════════ */
+const BONUS = [
+  {
+    i: "handshake" as const,
+    t: "Negociação online",
+    d: "O que muda quando a negociação acontece por mensagem, sem tom de voz e sem olho no olho.",
+  },
+  {
+    i: "eye" as const,
+    t: "Leitura corporal",
+    d: "O que o corpo entrega antes da fala — e como usar isso para saber a hora de avançar ou recuar.",
+  },
+  {
+    i: "spark" as const,
+    t: "Confiança instantânea",
+    d: "Atalhos para encurtar o tempo entre a dúvida do cliente e a decisão dele.",
+  },
+  {
+    i: "brain" as const,
+    t: "Mentalidade financeira",
+    d: "E-books autorais sobre a relação com dinheiro que você herdou e nunca parou para questionar.",
+  },
+];
+
+function Bonus() {
+  return (
+    <section className="band">
+      <div className="shell">
+        <Reveal>
+          <p className="eyebrow eyebrow-petrol">Incluído sem custo extra</p>
+          <h2 className="display display-section mt-5 max-w-[560px]">
+            Quatro materiais de <span className="teal">consulta rápida</span>
+          </h2>
+          <p className="lead mt-6 max-w-[580px]">
+            Feitos para abrir cinco minutos antes de uma reunião, não para ler no fim de semana.
+          </p>
+        </Reveal>
+
+        <div className="grid sm:grid-cols-2 gap-4 mt-12">
+          {BONUS.map((b, i) => (
+            <Reveal key={b.t} delay={i * 70}>
+              <article className="panel panel-petrol panel-lift h-full p-7 flex gap-5">
+                <div className="glyph glyph-petrol">
+                  <Icon name={b.i} />
+                </div>
+                <div>
+                  <h3 className="display-sm">{b.t}</h3>
+                  <p className="mt-2.5 text-[0.94rem] leading-relaxed text-ink-muted">{b.d}</p>
+                </div>
+              </article>
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ═══════════════ PARA QUEM É ═══════════════ */
+
+const SIM = [
+  "Você já fatura e quer estrutura para o próximo degrau",
+  "Está disposto a aplicar na semana, não a colecionar aula",
+  "Aceita olhar para a própria forma de decidir antes de culpar o mercado",
+  "Quer movimento — e sabe que movimento exige execução",
+];
+
+const NAO = [
+  "Procura fórmula pronta que funcione sem adaptação",
+  "Espera resultado sem mudar nenhuma rotina de decisão",
+  "Quer milagre enlatado com data marcada",
+  "Vai comprar para salvar e assistir um dia",
+];
+
+function Audience() {
+  return (
+    <section className="band">
+      <div className="shell">
+        <Reveal>
+          <p className="eyebrow">Antes de decidir</p>
+          <h2 className="display display-section mt-5 max-w-[620px]">
+            Este método filtra — e isso é de propósito
+          </h2>
+        </Reveal>
+
+        <div className="grid md:grid-cols-2 gap-4 mt-12">
+          <Reveal delay={80}>
+            <div className="panel h-full p-8">
+              <div className="glyph">
+                <Icon name="trending" />
+              </div>
+              <p className="eyebrow mt-5">É para você se</p>
+              <ul className="mt-6 space-y-4">
+                {SIM.map((s) => (
+                  <li key={s} className="flex gap-3.5 text-[0.94rem] leading-relaxed text-ink-soft">
+                    <Tick />
+                    <span>{s}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </Reveal>
+
+          <Reveal delay={160}>
+            <div className="panel-quiet h-full p-8">
+              <div className="glyph border-white/10 bg-white/[0.03] text-ink-faint">
+                <Icon name="clock" />
+              </div>
+              <p className="meta mt-5">Não é para você se</p>
+              <ul className="mt-6 space-y-4">
+                {NAO.map((s) => (
+                  <li key={s} className="flex gap-3.5 text-[0.94rem] leading-relaxed text-ink-muted">
+                    <Cross />
+                    <span>{s}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </Reveal>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ═══════════════ QUEM CONDUZ ═══════════════ */
 
 function Mentor() {
   return (
-    <section className="band relative">
-      <hr className="hairline absolute inset-x-0 top-0" />
-      <div className="shell grid lg:grid-cols-[0.8fr_1.2fr] gap-12 lg:gap-16 items-center">
+    <section className="band">
+      <div className="shell grid lg:grid-cols-[0.78fr_1.22fr] gap-10 lg:gap-16 items-center">
         <Reveal>
-          <figure className="relative max-w-[360px] mx-auto lg:mx-0">
-            <div className="relative overflow-hidden rounded-[16px] border border-gold/20">
+          <figure className="relative max-w-[350px] mx-auto lg:mx-0">
+            <div className="relative overflow-hidden rounded-[16px] border border-gold/22">
               <Image
                 src={retratoMentora}
                 alt="Retrato de Deyllane Lacerda"
                 placeholder="blur"
-                sizes="(max-width: 1024px) 80vw, 360px"
+                sizes="(max-width: 1024px) 78vw, 350px"
                 className="w-full h-auto"
               />
               <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-abyss to-transparent" />
@@ -727,7 +1199,7 @@ function Mentor() {
                 alt="Deyllane Lacerda — Estrategista de Negócios"
                 width={1000}
                 height={426}
-                className="w-[175px] h-auto"
+                className="w-[170px] h-auto"
               />
             </figcaption>
           </figure>
@@ -736,12 +1208,12 @@ function Mentor() {
         <div>
           <Reveal delay={80}>
             <p className="eyebrow">Quem conduz</p>
-            <h2 className="display display-section mt-6">Deyllane Lacerda</h2>
+            <h2 className="display display-section mt-5">Deyllane Lacerda</h2>
             <p className="meta mt-3">Estrategista de negócios</p>
           </Reveal>
 
           <Reveal delay={140}>
-            <p className="lead mt-8 max-w-[560px]">
+            <p className="lead mt-7 max-w-[560px]">
               Trabalho a mente do empreendedor porque é lá que a decisão acontece — a sua e a do
               seu cliente. Junto finanças comportamentais, neurociência e negociação num método
               que existe para gerar movimento, não para render um certificado.
@@ -758,9 +1230,11 @@ function Mentor() {
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => trackContact("instagram_mentora")}
-              className="cta-ghost mt-8"
+              className="cta-ghost mt-7"
             >
-              @lacerdadeyllane <Arrow />
+              <InstagramGlyph />
+              @lacerdadeyllane
+              <Arrow />
             </a>
           </Reveal>
         </div>
@@ -769,14 +1243,14 @@ function Mentor() {
   );
 }
 
-/* ═══════════════ OFERTA ═══════════════ */
+/* ═══════════════ INVESTIMENTO ═══════════════ */
 
 const INCLUSO = [
   "Método Sinapse Empresarial completo — as seis frentes",
   "Aulas online curtas, para assistir e aplicar na mesma semana",
   "E-books de negociação online, leitura corporal e confiança instantânea",
   "E-books autorais de mentalidade financeira",
-  "Acesso por 1 ano, de qualquer dispositivo",
+  "Acesso por 12 meses, de qualquer dispositivo",
 ];
 
 function Offer() {
@@ -800,68 +1274,64 @@ function Offer() {
   }, []);
 
   return (
-    <section id="oferta" className="band relative overflow-hidden scroll-mt-[72px]">
-      <hr className="hairline absolute inset-x-0 top-0" />
-      <div className="aura w-[720px] h-[720px] left-1/2 -translate-x-1/2 top-[10%]" />
+    <section id="oferta" className="band relative overflow-hidden">
+      <div className="aura w-[760px] h-[760px] left-1/2 -translate-x-1/2 top-[6%]" />
+      <div className="aura aura-petrol w-[520px] h-[520px] -left-[180px] top-[40%]" />
 
-      <div className="shell-narrow relative">
+      <div className="shell-narrow">
         <Reveal className="text-center">
           <p className="eyebrow">Investimento</p>
-          <h2 className="display display-section mt-6">
-            Um ano de acesso ao método
+          <h2 className="display display-section mt-5">
+            Acesso completo ao <span className="gilt">Método Sinapse Empresarial</span>
           </h2>
+          <p className="lead mt-6 mx-auto max-w-[560px]">
+            12 meses para aprender, aplicar e transformar suas decisões.
+          </p>
         </Reveal>
 
         <Reveal delay={100}>
-          <div className="panel mt-12 p-8 sm:p-11">
+          <div className="panel mt-11 p-7 sm:p-11">
             <Image
               src="/images/logo-sinapse-wordmark.png"
               alt="Sinapse Empresarial"
               width={1000}
               height={400}
-              className="w-[260px] h-auto mx-auto"
+              className="w-[250px] h-auto mx-auto"
             />
 
             <ul className="mt-10 space-y-4">
               {INCLUSO.map((item) => (
-                <li key={item} className="flex gap-3.5 text-[0.95rem] leading-relaxed text-ink-soft">
+                <li key={item} className="flex gap-3.5 text-[0.94rem] leading-relaxed text-ink-soft">
                   <Tick />
                   <span>{item}</span>
                 </li>
               ))}
             </ul>
 
-            <div className="mt-11 pt-9 border-t border-white/[0.07] text-center">
+            <div className="mt-10 pt-9 border-t border-white/[0.08] text-center">
               <p className="text-ink-muted line-through text-sm">R$ {PRECO_CHEIO}</p>
               <div className="flex items-baseline justify-center gap-3 mt-2">
                 <span className="font-display text-gold text-2xl font-semibold leading-none">R$</span>
-                <span className="display gilt text-[4rem] leading-none -ml-1">{PRECO}</span>
+                <span className="display gilt text-[4rem] leading-none">{PRECO}</span>
               </div>
-              <p className="meta mt-3">Investimento único · Um ano de acesso ilimitado</p>
+              <p className="display-sm mt-4">Pagamento único — sem mensalidades</p>
 
-              <a
-                href={KIWIFY}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="cta cta-wide mt-9"
-              >
-                {CTA_LABEL} <Arrow />
-              </a>
+              <BuyButton className="cta-wide mt-8" />
 
               <p className="meta mt-6">Compra segura · Acesso imediato</p>
-              <p className="meta mt-2 text-gold">Garantia de 7 dias (art. 49 do CDC)</p>
+              <p className="meta mt-2 text-gold">Garantia de 7 dias (art. 49 do CDC)</p>
             </div>
           </div>
         </Reveal>
 
         <Reveal delay={180}>
-          <div className="panel mt-5 p-8 flex flex-col sm:flex-row items-center gap-6 text-center sm:text-left">
-            <div className="grid place-items-center w-[68px] h-[68px] shrink-0 rounded-full border border-gold/30 bg-gold/[0.07]">
-              <Shield />
+          <div className="panel-petrol panel mt-4 p-8 flex flex-col sm:flex-row items-center gap-6 text-center sm:text-left">
+            <div className="glyph glyph-petrol w-[64px] h-[64px] rounded-full">
+              <Icon name="shield" className="w-7 h-7" />
             </div>
             <div>
-              <p className="display-sm gilt">O risco é meu</p>
-              <p className="mt-2.5 text-[0.95rem] leading-relaxed text-ink-soft">
+              <p className="display-sm teal">O risco é meu</p>
+              <p className="mt-2.5 text-[0.94rem] leading-relaxed text-ink-soft">
                 Entre, assista, aplique. Se concluir que não é para você, peça o reembolso em até
                 7 dias e recebe o valor integral de volta — sem precisar justificar.
               </p>
@@ -894,7 +1364,7 @@ const FAQ = [
   },
   {
     q: "Por quanto tempo fica disponível?",
-    a: "Um ano a partir da compra, e-books incluídos.",
+    a: "Doze meses a partir da compra, e-books incluídos.",
   },
   {
     q: "E se não for para mim?",
@@ -906,7 +1376,7 @@ function FaqItem({ q, a, id }: { q: string; a: string; id: string }) {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="border-b border-white/[0.07]">
+    <div className="border-b border-white/[0.08]">
       <button
         type="button"
         onClick={() => setOpen(!open)}
@@ -934,7 +1404,7 @@ function FaqItem({ q, a, id }: { q: string; a: string; id: string }) {
         style={{ gridTemplateRows: open ? "1fr" : "0fr" }}
       >
         <div className="overflow-hidden">
-          <p className="pb-6 pr-10 text-[0.95rem] leading-relaxed text-ink-muted">{a}</p>
+          <p className="pb-6 pr-10 text-[0.94rem] leading-relaxed text-ink-muted">{a}</p>
         </div>
       </div>
     </div>
@@ -943,15 +1413,14 @@ function FaqItem({ q, a, id }: { q: string; a: string; id: string }) {
 
 function Faq() {
   return (
-    <section className="band relative">
-      <hr className="hairline absolute inset-x-0 top-0" />
+    <section className="band">
       <div className="shell-narrow">
         <Reveal>
           <p className="eyebrow">Perguntas</p>
-          <h2 className="display display-section mt-6">Antes que você pergunte</h2>
+          <h2 className="display display-section mt-5">Antes que você pergunte</h2>
         </Reveal>
 
-        <div className="mt-12">
+        <div className="mt-10">
           {FAQ.map((item, i) => (
             <Reveal key={item.q} delay={i * 50}>
               <FaqItem q={item.q} a={item.a} id={`faq-${i}`} />
@@ -960,7 +1429,7 @@ function Faq() {
         </div>
 
         <Reveal delay={300}>
-          <div className="mt-12 text-center">
+          <div className="mt-10 text-center">
             <a
               href={WA_LINK}
               target="_blank"
@@ -977,15 +1446,14 @@ function Faq() {
   );
 }
 
-/* ═══════════════ FECHAMENTO ═══════════════ */
+/* ═══════════════ COMPRA FINAL ═══════════════ */
 
-function Close() {
+function FinalPurchase() {
   return (
     <section className="band relative overflow-hidden">
-      <hr className="hairline absolute inset-x-0 top-0" />
-      <div className="aura w-[600px] h-[600px] left-1/2 -translate-x-1/2 -top-[100px] opacity-70" />
+      <div className="aura w-[620px] h-[620px] left-1/2 -translate-x-1/2 -top-[120px]" />
 
-      <div className="shell-narrow relative text-center">
+      <div className="shell-narrow text-center">
         <Reveal>
           <Image
             src="/images/logo-sinapse-mark.png"
@@ -994,12 +1462,12 @@ function Close() {
             height={400}
             className="h-12 w-auto mx-auto opacity-90"
           />
-          <h2 className="display display-section mt-9">
+          <h2 className="display display-section mt-8">
             Daqui a um ano você decide
             <br />
             <span className="gilt">do mesmo jeito?</span>
           </h2>
-          <p className="lead mt-7 mx-auto max-w-[560px]">
+          <p className="lead mt-6 mx-auto max-w-[560px]">
             Seu faturamento pode crescer sem que nada mude na forma como você decide. É assim que
             um negócio maior vira só um problema maior. O método existe para quebrar esse ciclo —
             e começa com uma decisão sua, agora.
@@ -1007,12 +1475,16 @@ function Close() {
         </Reveal>
 
         <Reveal delay={120}>
-          <a href={KIWIFY} target="_blank" rel="noopener noreferrer" className="cta mt-10">
-            {CTA_LABEL} <Arrow />
-          </a>
-          <p className="meta mt-6">
-            R$ {PRECO} · 1 ano de acesso · Garantia de 7 dias
-          </p>
+          <div className="panel mt-10 p-7 sm:p-9 max-w-[520px] mx-auto">
+            <p className="display-sm">Acesso completo ao método</p>
+            <div className="flex items-baseline justify-center gap-2.5 mt-4">
+              <span className="font-display text-gold text-xl font-semibold leading-none">R$</span>
+              <span className="display gilt text-[3.2rem] leading-none">{PRECO}</span>
+            </div>
+            <p className="meta mt-3">Pagamento único · 12 meses de acesso</p>
+            <BuyButton className="cta-wide mt-7" />
+            <p className="meta mt-5 text-gold">Garantia de 7 dias</p>
+          </div>
         </Reveal>
       </div>
     </section>
@@ -1023,8 +1495,7 @@ function Close() {
 
 function Footer() {
   return (
-    <footer className="relative pt-16 pb-16">
-      <hr className="hairline absolute inset-x-0 top-0" />
+    <footer className="relative pt-14 pb-16">
       <div className="shell text-center">
         <Image
           src="/images/logo-sinapse-wordmark.png"
@@ -1035,14 +1506,15 @@ function Footer() {
         />
         <p className="meta mt-4">O método que conecta comportamento, dinheiro e vendas</p>
 
-        <div className="flex flex-wrap justify-center gap-x-7 gap-y-3 mt-9 text-[0.85rem] text-ink-muted">
+        <div className="flex flex-wrap justify-center gap-x-7 gap-y-1 mt-8 text-[0.85rem] text-ink-muted">
           <a
             href={INSTA}
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => trackContact("instagram_rodape")}
-            className="inline-flex items-center min-h-[44px] px-1 hover:text-gold transition-colors"
+            className="inline-flex items-center gap-2 min-h-[44px] px-1 hover:text-gold transition-colors"
           >
+            <InstagramGlyph />
             @lacerdadeyllane
           </a>
           <a
@@ -1063,7 +1535,7 @@ function Footer() {
           </a>
         </div>
 
-        <p className="meta mt-9 normal-case tracking-normal max-w-[620px] mx-auto leading-relaxed">
+        <p className="meta mt-8 normal-case tracking-normal max-w-[620px] mx-auto leading-relaxed">
           Conteúdo educacional. Não é consultoria de investimentos e não promete retorno
           financeiro — o resultado depende da aplicação de cada pessoa.
         </p>
@@ -1100,20 +1572,28 @@ function WhatsAppFab() {
 export default function Home() {
   return (
     <>
-      <a href="#conteudo" className="skip-link">
+      <a href="#conteudo-principal" className="skip-link">
         Pular para o conteúdo
       </a>
+      <NeuralField />
       <Header />
-      <main id="conteudo">
+      <main id="conteudo-principal" className="relative z-[1]">
         <Hero />
-        <Thesis />
-        <Synapse />
+        <ValueStrip />
+        <Diagnosis />
+        <Wave id="um" />
+        <Mechanism />
+        <Transformation />
+        <Wave id="dois" flip />
         <Method />
+        <Deliverables />
         <Bonus />
+        <Audience />
+        <Wave id="tres" />
         <Mentor />
         <Offer />
         <Faq />
-        <Close />
+        <FinalPurchase />
       </main>
       <Footer />
       <WhatsAppFab />
