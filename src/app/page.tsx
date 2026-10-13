@@ -8,9 +8,7 @@ import retratoMentora from "../../public/images/deyllane-mentora.jpg";
 
 /* ═══════════════ CONSTANTES ═══════════════ */
 
-/* TODO: trocar pelo checkout do Sinapse Empresarial (R$ 197).
-   Este link ainda é o do Vida Rica (R$ 97). */
-const KIWIFY = "https://pay.kiwify.com.br/COIbRyc";
+const KIWIFY = "https://pay.kiwify.com.br/AOXrTIn";
 
 const WA_LINK =
   "https://wa.me/5598985679867?text=Ol%C3%A1!%20Tenho%20interesse%20no%20Sinapse%20Empresarial";
@@ -97,6 +95,11 @@ const GLYPHS: Record<string, ReactNode> = {
     <>
       <path d="M2.8 12S6.2 6.4 12 6.4 21.2 12 21.2 12 17.8 17.6 12 17.6 2.8 12 2.8 12z" />
       <circle cx="12" cy="12" r="2.8" />
+    </>
+  ),
+  quote: (
+    <>
+      <path d="M9.6 6.2C6.6 7.6 5 10 5 13v4.8h5.4V12H7.9c0-1.9.8-3.3 2.6-4.2zM19 6.2c-3 1.4-4.6 3.8-4.6 6.8v4.8h5.4V12h-2.5c0-1.9.8-3.3 2.6-4.2z" />
     </>
   ),
   spark: (
@@ -859,70 +862,60 @@ function Mechanism() {
   );
 }
 
-/* ═══════════════ TRANSFORMAÇÃO ═══════════════ */
+/* ═══════════════ DEPOIMENTOS ═══════════════ */
 
-const MUDANCAS = [
+/* Mensagens recebidas por WhatsApp. Texto mantido como veio, só com as
+   abreviações abertas — números e afirmações intocados. */
+const DEPOIMENTOS = [
   {
-    antes: "O preço sai da sua boca já com desconto",
-    depois: "Você ancora o valor antes de falar em número",
+    texto:
+      "Deyllane, vim te dizer que eu comecei a aplicar o que você ensina no Sinapse Empresarial e meu faturamento aumentou mais de R$ 10 mil! Eu vendia, mas não tinha estratégia e também não sabia organizar direito o dinheiro que entrava. Agora, depois de aplicar, as coisas estão bem melhores — e é porque eu tive um período difícil, viu. Valeu o investimento, obrigada.",
+    tom: "gold" as const,
   },
   {
-    antes: "Decisão de dinheiro no impulso, sob pressão",
-    depois: "Você reconhece o viés antes de assinar",
-  },
-  {
-    antes: "A objeção encerra a conversa",
-    depois: "A objeção vira o ponto onde você fecha",
-  },
-  {
-    antes: "A meta evapora em três semanas",
-    depois: "A meta sobrevive porque o formato respeita o cérebro",
+    texto:
+      "Mulher, você não tem noção do quanto você me salvou. As dívidas da minha empresa estavam em quase R$ 70 mil e agora já caiu para R$ 34 mil! Ainda não terminei, mas do que estava para o que tá agora está bem demais, e tô aplicando as estratégias para alcançar mais clientes também. Volto pra te contar como tá.",
+    tom: "petrol" as const,
   },
 ];
 
-function Transformation() {
+function Depoimentos() {
   return (
     <section className="band">
       <div className="shell">
         <Reveal>
-          <p className="eyebrow">O que muda na prática</p>
+          <p className="eyebrow">Quem já aplicou</p>
           <h2 className="display display-section mt-5 max-w-[620px]">
-            De reagir a <span className="gilt">decidir</span>
+            Mensagens de quem <span className="gilt">fez o método</span>
           </h2>
-          <p className="lead mt-6 max-w-[600px]">
-            Não é sobre saber mais. É sobre mudar o que acontece nos segundos em que a decisão
-            é tomada — a sua e a do seu cliente.
-          </p>
         </Reveal>
 
-        <div className="mt-12 grid gap-3">
-          <Reveal>
-            <div className="hidden md:grid grid-cols-[1fr_auto_1fr] gap-6 px-7 pb-1">
-              <p className="meta">Como é hoje</p>
-              <span className="w-5" />
-              <p className="meta text-gold">Depois do método</p>
-            </div>
-          </Reveal>
-
-          {MUDANCAS.map((m, i) => (
-            <Reveal key={m.antes} delay={i * 70}>
-              <div className="panel-quiet grid md:grid-cols-[1fr_auto_1fr] items-center gap-4 md:gap-6 p-6 md:px-7">
-                <p className="text-[0.94rem] leading-relaxed text-ink-faint md:line-through">
-                  {m.antes}
-                </p>
-                <span className="hidden md:grid place-items-center w-5 text-gold">
-                  <Arrow />
-                </span>
-                <p className="text-[0.96rem] leading-relaxed text-ink font-medium">{m.depois}</p>
-              </div>
+        <div className="grid lg:grid-cols-2 gap-4 mt-12">
+          {DEPOIMENTOS.map((d, i) => (
+            <Reveal key={i} delay={i * 90}>
+              <figure
+                className={`panel panel-lift h-full p-7 sm:p-8 flex flex-col ${
+                  d.tom === "petrol" ? "panel-petrol" : ""
+                }`}
+              >
+                <div className={`glyph ${d.tom === "petrol" ? "glyph-petrol" : ""}`}>
+                  <Icon name="quote" />
+                </div>
+                <blockquote className="mt-6 text-[1rem] leading-relaxed text-ink-soft">
+                  {d.texto}
+                </blockquote>
+                <figcaption className="meta mt-6 pt-5 border-t border-white/[0.07]">
+                  Aluna do Sinapse Empresarial
+                </figcaption>
+              </figure>
             </Reveal>
           ))}
         </div>
 
-        <Reveal delay={320}>
-          <p className="meta mt-8 normal-case tracking-normal max-w-[620px]">
-            Isto é o que o método ensina a fazer. O resultado de cada pessoa depende da
-            aplicação — não existe garantia de faturamento aqui.
+        <Reveal delay={240}>
+          <p className="meta mt-8 normal-case tracking-normal max-w-[640px] leading-relaxed">
+            Mensagens reais recebidas por WhatsApp. Os resultados são individuais e dependem da
+            aplicação de cada pessoa — nada aqui é promessa de faturamento.
           </p>
         </Reveal>
       </div>
@@ -932,25 +925,30 @@ function Transformation() {
 
 /* ═══════════════ MÉTODO ═══════════════ */
 
-const FRENTES = [
+const PROGRAMA = [
   {
     lado: "A sua decisão",
     tom: "gold" as const,
     itens: [
       {
         i: "brain" as const,
-        t: "Decidir sob pressão",
-        d: "Quais vieses assumem o comando quando o caixa aperta — e como interromper o automático antes de assinar.",
+        t: "Entendendo a autossabotagem financeira",
+        d: "Por que você repete escolhas que já sabe que não funcionam — e onde o padrão começa.",
+      },
+      {
+        i: "eye" as const,
+        t: "Funcionamento da mente e tomada de decisões",
+        d: "Gastos irracionais, gatilhos mentais e feridas emocionais por trás de cada decisão de dinheiro.",
       },
       {
         i: "scale" as const,
-        t: "Dívida é sintoma",
-        d: "Sair do vermelho é consequência. O trabalho é no padrão que recria a dívida mesmo depois dela ser quitada.",
+        t: "Saindo do ciclo de dívidas pessoais e empresariais",
+        d: "O que recria a dívida mesmo depois de quitada, e como quebrar o ciclo em vez de só pagar.",
       },
       {
-        i: "trending" as const,
-        t: "Dinheiro com método",
-        d: "Organização financeira que sobrevive a um mês ruim, sem planilha complicada e sem promessa de disciplina eterna.",
+        i: "target" as const,
+        t: "Conquistando metas dentro e fora do negócio",
+        d: "Metas num formato que o cérebro aceita, para não evaporarem em três semanas.",
       },
     ],
   },
@@ -959,19 +957,19 @@ const FRENTES = [
     tom: "petrol" as const,
     itens: [
       {
-        i: "spark" as const,
-        t: "O sim antes do argumento",
-        d: "A confiança se forma antes da sua primeira frase técnica. Como construí-la de propósito, não por sorte.",
-      },
-      {
-        i: "target" as const,
-        t: "Ancoragem e preço",
-        d: "Por que você desconta sozinho e como ancorar valor de um jeito que o desconto deixa de ser o assunto.",
+        i: "trending" as const,
+        t: "Fazendo dinheiro com neurovendas",
+        d: "Como a confiança se forma em segundos e o que leva o cliente a decidir comprar.",
       },
       {
         i: "handshake" as const,
-        t: "Objeção e fechamento",
-        d: "Toda objeção é um pedido de segurança. Como responder ao pedido real e fechar sem empurrar.",
+        t: "Aprendendo a negociar",
+        d: "Conduzir a conversa sem empurrar: toda objeção é um pedido de segurança.",
+      },
+      {
+        i: "layers" as const,
+        t: "Preço e posicionamento",
+        d: "Ancorar valor para parar de descontar antes mesmo de pedirem desconto.",
       },
     ],
   },
@@ -982,12 +980,18 @@ function Method() {
     <section id="metodo" className="band">
       <div className="shell">
         <Reveal>
-          <p className="eyebrow">O que você domina</p>
-          <h2 className="display display-section mt-5 max-w-[560px]">Seis frentes, um eixo</h2>
+          <p className="eyebrow">O programa</p>
+          <h2 className="display display-section mt-5 max-w-[620px]">
+            O que você vai ver no <span className="gilt">Sinapse</span>
+          </h2>
+          <p className="lead mt-6 max-w-[580px]">
+            Sete módulos mais um bônus, organizados na ordem em que um sustenta o outro: primeiro
+            a sua forma de decidir, depois a do seu cliente.
+          </p>
         </Reveal>
 
         <div className="grid lg:grid-cols-2 gap-x-10 gap-y-10 mt-12">
-          {FRENTES.map((coluna, ci) => (
+          {PROGRAMA.map((coluna, ci) => (
             <div key={coluna.lado}>
               <Reveal delay={ci * 80}>
                 <p className={`eyebrow ${coluna.tom === "petrol" ? "eyebrow-petrol" : ""}`}>
@@ -1017,6 +1021,18 @@ function Method() {
             </div>
           ))}
         </div>
+
+        <Reveal delay={320}>
+          <article className="panel panel-lift mt-6 p-7 flex flex-col sm:flex-row gap-5 sm:items-center">
+            <div className="glyph">
+              <Icon name="spark" />
+            </div>
+            <div>
+              <p className="eyebrow">Bônus do treinamento</p>
+              <h3 className="display-sm mt-2.5">Reprogramação mental para aumentar confiança</h3>
+            </div>
+          </article>
+        </Reveal>
       </div>
     </section>
   );
@@ -1032,8 +1048,8 @@ const ENTREGA = [
   },
   {
     i: "layers" as const,
-    t: "Seis frentes em sequência",
-    d: "Do comportamento com dinheiro até o fechamento da venda, na ordem em que uma sustenta a outra.",
+    t: "Sete módulos em sequência",
+    d: "Do comportamento com dinheiro até preço e posicionamento, na ordem em que um sustenta o outro.",
   },
   {
     i: "book" as const,
@@ -1208,7 +1224,7 @@ function Mentor() {
 /* ═══════════════ INVESTIMENTO ═══════════════ */
 
 const INCLUSO = [
-  "Método Sinapse Empresarial completo — as seis frentes",
+  "Método Sinapse Empresarial completo — os sete módulos mais o bônus",
   "Aulas online curtas, para assistir e aplicar na mesma semana",
   "E-books de negociação online, leitura corporal e confiança instantânea",
   "E-books autorais de mentalidade financeira",
@@ -1544,7 +1560,7 @@ export default function Home() {
         <Diagnosis />
         <Wave id="um" />
         <Mechanism />
-        <Transformation />
+        <Depoimentos />
         <Wave id="dois" flip />
         <Method />
         <Deliverables />
