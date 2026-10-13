@@ -864,18 +864,33 @@ function Mechanism() {
 
 /* ═══════════════ DEPOIMENTOS ═══════════════ */
 
-/* Mensagens recebidas por WhatsApp. Texto mantido como veio, só com as
-   abreviações abertas — números e afirmações intocados. */
+/* Prints das mensagens, recortados só na bolha — sem avatar e sem a
+   interface do WhatsApp. O texto completo vai no alt: é ele que o
+   leitor de tela e o buscador enxergam. */
 const DEPOIMENTOS = [
   {
-    texto:
-      "Deyllane, vim te dizer que eu comecei a aplicar o que você ensina no Sinapse Empresarial e meu faturamento aumentou mais de R$ 10 mil! Eu vendia, mas não tinha estratégia e também não sabia organizar direito o dinheiro que entrava. Agora, depois de aplicar, as coisas estão bem melhores — e é porque eu tive um período difícil, viu. Valeu o investimento, obrigada.",
+    src: "/images/depoimento-1.jpg",
+    largura: 900,
+    altura: 642,
     tom: "gold" as const,
+    destaque: "meu faturamento aumentou mais de R$ 10 mil",
+    alt: "Mensagem recebida no WhatsApp: Deyllane vim te dizer q eu comecei a aplicar o que você ensina no Sinapse Empresarial e meu faturamento aumentou mais de R$ 10 mil! Eu vendia, mas não tinha estratégia e também não sabia organizar direito o dinheiro que entrava e agora depois de aplicar as coisas estão bem melhores e é pq eu tive um período dificil viu, valeu o investimento obrigada.",
   },
   {
-    texto:
-      "Mulher, você não tem noção do quanto você me salvou. As dívidas da minha empresa estavam em quase R$ 70 mil e agora já caiu para R$ 34 mil! Ainda não terminei, mas do que estava para o que tá agora está bem demais, e tô aplicando as estratégias para alcançar mais clientes também. Volto pra te contar como tá.",
+    src: "/images/depoimento-2.jpg",
+    largura: 900,
+    altura: 566,
     tom: "petrol" as const,
+    destaque: "estavam em quase R$ 70 mil e agora já caiu para R$ 34 mil",
+    alt: "Mensagem recebida no WhatsApp: Mulher, você não tem noção do quanto vc me salvou. As dívidas da minha empresa estavam em quase R$ 70 mil e agora ja caiu para R$ 34 mil! Ainda não terminei, mas do que estava para o que tá agora está bem demais e to aplicando as estrategias para alcançar mais clientes tbm, volto pra te contar como ta.",
+  },
+  {
+    src: "/images/depoimento-3.jpg",
+    largura: 900,
+    altura: 935,
+    tom: "gold" as const,
+    destaque: "conseguimos aumentar o faturamento em 80mil",
+    alt: "Mensagem recebida no WhatsApp: conseguimos aumentar o faturamento em 80mil se comparado ao último mês nesse mesmo período, sendo que o mês de agosto era um mês com bem menos movimento. Depois que eu usei o seu método, nosso faturamento aumentou muito, fomos de R$200 para quase R$283 em 12 dias. Atualmente utilizo seus métodos não só para vender os serviços, mas também para vender os produtos e estamos com um aumento de R$5mil a mais do que o mês de agosto. Novamente muito obrigado, você é 10.",
   },
 ];
 
@@ -890,32 +905,45 @@ function Depoimentos() {
           </h2>
         </Reveal>
 
-        <div className="grid lg:grid-cols-2 gap-4 mt-12">
+        <div className="grid md:grid-cols-3 gap-4 mt-12 items-start">
           {DEPOIMENTOS.map((d, i) => (
-            <Reveal key={i} delay={i * 90}>
+            <Reveal key={d.src} delay={i * 90}>
               <figure
-                className={`panel panel-lift h-full p-7 sm:p-8 flex flex-col ${
-                  d.tom === "petrol" ? "panel-petrol" : ""
-                }`}
+                className={`panel panel-lift p-5 ${d.tom === "petrol" ? "panel-petrol" : ""}`}
               >
-                <div className={`glyph ${d.tom === "petrol" ? "glyph-petrol" : ""}`}>
-                  <Icon name="quote" />
-                </div>
-                <blockquote className="mt-6 text-[1rem] leading-relaxed text-ink-soft">
-                  {d.texto}
-                </blockquote>
-                <figcaption className="meta mt-6 pt-5 border-t border-white/[0.07]">
-                  Aluna do Sinapse Empresarial
+                <figcaption
+                  className={`display-sm normal-case text-[0.98rem] leading-snug ${
+                    d.tom === "petrol" ? "teal" : "gilt"
+                  }`}
+                >
+                  “{d.destaque}”
                 </figcaption>
+
+                <div className="mt-5 overflow-hidden rounded-[10px]">
+                  <Image
+                    src={d.src}
+                    alt={d.alt}
+                    width={d.largura}
+                    height={d.altura}
+                    sizes="(max-width: 768px) 90vw, 360px"
+                    className="w-full h-auto"
+                  />
+                </div>
+
+                <p className="meta mt-4 flex items-center gap-2">
+                  <Icon name="quote" className="w-[13px] h-[13px] text-gold" />
+                  Recebida no WhatsApp
+                </p>
               </figure>
             </Reveal>
           ))}
         </div>
 
-        <Reveal delay={240}>
+        <Reveal delay={300}>
           <p className="meta mt-8 normal-case tracking-normal max-w-[640px] leading-relaxed">
-            Mensagens reais recebidas por WhatsApp. Os resultados são individuais e dependem da
-            aplicação de cada pessoa — nada aqui é promessa de faturamento.
+            Mensagens reais de alunos, publicadas sem nome e sem foto. Os resultados são
+            individuais e dependem da aplicação de cada pessoa — nada aqui é promessa de
+            faturamento.
           </p>
         </Reveal>
       </div>
